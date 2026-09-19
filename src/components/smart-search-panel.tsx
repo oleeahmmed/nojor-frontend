@@ -20,7 +20,14 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 /**
  * Smart search panel — date range, area, category, status → URL → server API.
  */
-export function SmartSearchPanel() {
+export function SmartSearchPanel({
+  className,
+  inline = false,
+}: {
+  className?: string;
+  /** Compact trigger for the shared filter row */
+  inline?: boolean;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -116,12 +123,13 @@ export function SmartSearchPanel() {
   }
 
   return (
-    <div className="w-full min-w-0">
+    <div className={cn(inline ? "relative shrink-0" : "w-full min-w-0", className)}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex h-8 w-full items-center justify-between gap-2 rounded-xl border px-3 text-[12.5px] font-medium transition sm:h-9",
+          "flex h-8 items-center gap-1.5 rounded-full border px-3 text-[12.5px] font-medium transition sm:h-9",
+          inline ? "w-auto shrink-0" : "w-full justify-between rounded-xl",
           open || activeCount
             ? "border-emerald-600/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
             : "border-border bg-secondary/60 text-foreground hover:bg-secondary",
@@ -129,18 +137,28 @@ export function SmartSearchPanel() {
       >
         <span className="flex items-center gap-1.5">
           <Filter className="h-3.5 w-3.5" />
-          স্মার্ট সার্চ
+          <span className={cn(inline && "hidden sm:inline")}>স্মার্ট সার্চ</span>
+          <span className={cn(!inline && "hidden", "sm:hidden")}>সার্চ</span>
           {activeCount ? (
             <span className="rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
               {activeCount}
             </span>
           ) : null}
         </span>
-        <CalendarRange className="h-3.5 w-3.5 opacity-70" />
+        {!inline ? (
+          <CalendarRange className="h-3.5 w-3.5 opacity-70" />
+        ) : null}
       </button>
 
       {open ? (
-        <div className="mt-2 space-y-3 rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-3.5">
+        <div
+          className={cn(
+            "z-30 space-y-3 rounded-2xl border border-border bg-card p-3 shadow-lg sm:p-3.5",
+            inline
+              ? "absolute left-0 top-[calc(100%+6px)] w-[min(calc(100vw-1.25rem),22rem)] sm:w-[26rem]"
+              : "mt-2 shadow-sm",
+          )}
+        >
           <label className="block">
             <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
               কীওয়ার্ড

@@ -7,16 +7,19 @@ import { cn } from "@/lib/utils";
 export function ChipScroller({
   children,
   className,
+  flush = false,
 }: {
   children: ReactNode;
   className?: string;
+  /** No side padding — for embedding inside a shared filter row */
+  flush?: boolean;
 }) {
   return (
     <div className={cn("relative min-w-0", className)}>
       <div
         className={cn(
           "hide-scrollbar flex gap-1.5 overflow-x-auto overscroll-x-contain touch-pan-x scroll-smooth sm:gap-2",
-          "px-2.5 pr-7 sm:px-4 sm:pr-10",
+          flush ? "pr-6 sm:pr-8" : "px-2.5 pr-7 sm:px-4 sm:pr-10",
         )}
       >
         {children}

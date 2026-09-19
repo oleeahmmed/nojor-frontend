@@ -58,40 +58,39 @@ export function HomeFeed({
   return (
     <div className="w-full min-w-0">
       <div className="sticky top-0 z-20 w-full border-b border-border/50 bg-background">
-        <div className="flex min-w-0 flex-col gap-2 px-2.5 py-1.5 sm:gap-2.5 sm:px-4 sm:py-2">
-          <div className="flex min-w-0 items-center gap-2">
-            {role === "official" && district ? (
-              <p className="truncate text-sm">
-                কর্মকর্তা — <b>{district}</b>
-              </p>
-            ) : (
-              <HomeDistrictFilter />
-            )}
-          </div>
-          <SmartSearchPanel />
+        {/* Row 1: এলাকা + স্মার্ট সার্চ + স্ট্যাটাস */}
+        <div className="flex min-w-0 items-center gap-1.5 px-2.5 py-1.5 sm:gap-2 sm:px-4 sm:py-2">
+          {role === "official" && district ? (
+            <p className="shrink-0 truncate text-sm">
+              কর্মকর্তা — <b>{district}</b>
+            </p>
+          ) : (
+            <HomeDistrictFilter className="shrink-0" />
+          )}
+          <SmartSearchPanel inline />
+          <ChipScroller flush className="min-w-0 flex-1 pb-0">
+            {FILTERS.map((f) => {
+              const on = filter === f.key;
+              return (
+                <button
+                  key={f.key}
+                  type="button"
+                  onClick={() => patchParam("status", f.key)}
+                  className={cn(
+                    "h-7 shrink-0 rounded-lg px-2.5 text-[12px] font-medium whitespace-nowrap transition sm:h-8 sm:px-3 sm:text-[13px]",
+                    on
+                      ? "bg-foreground text-background"
+                      : "bg-secondary text-foreground hover:bg-secondary/80",
+                  )}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </ChipScroller>
         </div>
 
-        <ChipScroller className="pb-1">
-          {FILTERS.map((f) => {
-            const on = filter === f.key;
-            return (
-              <button
-                key={f.key}
-                type="button"
-                onClick={() => patchParam("status", f.key)}
-                className={cn(
-                  "h-7 shrink-0 rounded-lg px-2.5 text-[12px] font-medium whitespace-nowrap transition sm:h-8 sm:px-3 sm:text-[13px]",
-                  on
-                    ? "bg-foreground text-background"
-                    : "bg-secondary text-foreground hover:bg-secondary/80",
-                )}
-              >
-                {f.label}
-              </button>
-            );
-          })}
-        </ChipScroller>
-
+        {/* Row 2: অপরাধ ক্যাটাগরি */}
         <ChipScroller className="pb-2 sm:pb-2.5">
           {CRIME_CATEGORIES.map((c) => {
             const on = category === c.key;
