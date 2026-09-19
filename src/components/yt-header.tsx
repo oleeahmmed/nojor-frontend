@@ -7,6 +7,8 @@ import { BrandLogo } from "./brand-logo";
 import { ThemeSwitcher } from "./theme-switcher";
 import { useIdentity } from "./identity-provider";
 import { useApp } from "./providers";
+import { HomeDistrictFilter } from "./home-district-filter";
+import { SmartSearchPanel } from "./smart-search-panel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -66,7 +68,7 @@ export function YtHeader({
   }
 
   return (
-    <header className="z-40 flex h-14 w-full shrink-0 items-center gap-1 border-b border-border/60 bg-background px-1.5 sm:h-16 sm:gap-2 sm:px-3">
+    <header className="z-40 flex h-14 w-full shrink-0 items-center gap-1 border-b border-border/60 bg-background px-1.5 sm:h-16 sm:gap-1.5 sm:px-3">
       <div className="flex shrink-0 items-center gap-0">
         <Button
           variant="ghost"
@@ -77,12 +79,18 @@ export function YtHeader({
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <BrandLogo />
+        <BrandLogo compact />
+      </div>
+
+      {/* এলাকা + স্মার্ট সার্চ — topbar */}
+      <div className="relative z-50 flex min-w-0 shrink items-center gap-1 sm:gap-1.5">
+        <HomeDistrictFilter compact />
+        <SmartSearchPanel inline />
       </div>
 
       <form
         onSubmit={goSearch}
-        className="mx-auto hidden min-w-0 max-w-[640px] flex-1 items-center justify-center gap-2 px-4 md:flex"
+        className="mx-auto hidden min-w-0 max-w-[420px] flex-1 items-center justify-center gap-2 px-2 lg:flex"
       >
         <div className="flex h-10 min-w-0 flex-1 overflow-hidden rounded-full border border-border bg-background focus-within:border-foreground/20">
           <Input
@@ -115,7 +123,7 @@ export function YtHeader({
         <Button
           variant="ghost"
           size="icon"
-          className="size-10 rounded-full md:hidden sm:size-9"
+          className="size-10 rounded-full lg:hidden sm:size-9"
           onClick={() => setMobileSearch(true)}
           aria-label="Search"
         >
