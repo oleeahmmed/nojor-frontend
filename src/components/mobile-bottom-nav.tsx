@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Home, MoreHorizontal, Plus, UserRound } from "lucide-react";
 import { useState } from "react";
@@ -104,14 +103,14 @@ export function MobileBottomNav({
               কর্মকর্তা প্রবেশ
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/about">আমাদের সম্পর্কে</Link>
+            <DropdownMenuItem onClick={() => router.push("/about")}>
+              আমাদের সম্পর্কে
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/verification">কীভাবে যাচাই হয়</Link>
+            <DropdownMenuItem onClick={() => router.push("/verification")}>
+              কীভাবে যাচাই হয়
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/corrections">সংশোধন নীতি</Link>
+            <DropdownMenuItem onClick={() => router.push("/corrections")}>
+              সংশোধন নীতি
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <div className="flex items-center justify-between px-2 py-1.5">
