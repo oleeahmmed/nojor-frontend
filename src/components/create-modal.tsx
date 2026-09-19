@@ -29,6 +29,7 @@ import { submitCase } from "@/lib/api";
 import { COMMUNITY } from "@/lib/community";
 import { CRIME_CATEGORIES } from "@/lib/categories";
 import { ACCUSED_PARTIES, type AccusedPartyKey } from "@/lib/parties";
+import { normalizeTags } from "@/lib/tags";
 import { captureVideoFrame } from "@/lib/thumbnails";
 import {
   clearStudio,
@@ -114,6 +115,7 @@ export function CreateModal({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [party, setParty] = useState<AccusedPartyKey>("");
+  const [tagsInput, setTagsInput] = useState("");
   const [location, setLocation] = useState<LocationValue>(EMPTY_LOCATION);
 
   // studio (team) state
@@ -158,6 +160,7 @@ export function CreateModal({
     setDescription("");
     setCategory("");
     setParty("");
+    setTagsInput("");
     setLocation(EMPTY_LOCATION);
     setLoginUser("");
     setLoginPass("");
@@ -323,6 +326,7 @@ export function CreateModal({
         village: location.village,
         crime_category: category,
         accused_party: party || undefined,
+        tags: normalizeTags(tagsInput),
       });
       if (res?.ok) setOk(true);
       else setError(res?.error || "জমা ব্যর্থ হয়েছে।");
@@ -358,11 +362,14 @@ export function CreateModal({
     );
     setLoading(false);
     if (res.ok) {
-      if (res.slug && party) {
+      if (res.slug && (party || tagsInput.trim())) {
         try {
-          await staffEditCase(res.slug, { accused_party: party });
+          await staffEditCase(res.slug, {
+            accused_party: party || undefined,
+            tags: normalizeTags(tagsInput),
+          });
         } catch {
-          /* party optional — video already published */
+          /* optional metadata — video already published */
         }
       }
       setOkSlug(res.slug || "");
@@ -919,6 +926,20 @@ export function CreateModal({
                           },
                         )}
                       </div>
+                      <div className="mt-5">
+                        <label className="mb-2 block text-[13px] font-medium">
+                          হ্যাশট্যাগ{" "}
+                          <span className="font-normal text-muted-foreground">
+                            — ঐচ্ছিক
+                          </span>
+                        </label>
+                        <input
+                          value={tagsInput}
+                          onChange={(e) => setTagsInput(e.target.value)}
+                          placeholder="#বিএনপি #হুমকি #পটুয়াখালী"
+                          className={field}
+                        />
+                      </div>
                     </div>
                   ) : step === 2 ? (
                     /* ── ধাপ ৩: এলাকা ── */
@@ -1194,6 +1215,19 @@ export function CreateModal({
                         </option>
                       ))}
                     </FormSelect>
+                  </div>
+
+                  <div>
+                    <label className={label}>হ্যাশট্যাগ</label>
+                    <input
+                      value={tagsInput}
+                      onChange={(e) => setTagsInput(e.target.value)}
+                      placeholder="#বিএনপি #হুমকি #পটুয়াখালী"
+                      className={field}
+                    />
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      স্পেস বা কমা দিয়ে আলাদা করুন — সার্চে কাজে লাগে
+                    </p>
                   </div>
 
                   <div className="md:hidden">

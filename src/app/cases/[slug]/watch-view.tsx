@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { RelatedThumb } from "./related-thumb";
 import { useStudioSession } from "@/hooks/use-studio-session";
 import { partyLabel } from "@/lib/parties";
+import { CaseHashtags } from "@/components/case-hashtags";
 
 /**
  * YouTube watch layout:
@@ -74,6 +75,7 @@ export function WatchView({
             <h1 className="mt-3 text-[18px] font-bold leading-snug tracking-[-0.02em] sm:text-[20px]">
               {caseData.title}
             </h1>
+            <CaseHashtags tags={caseData.tags} className="mt-2" />
 
             <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3">

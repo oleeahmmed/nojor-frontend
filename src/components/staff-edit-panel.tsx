@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Pencil, Shield } from "lucide-react";
 import { CRIME_CATEGORIES } from "@/lib/categories";
 import { ACCUSED_PARTIES, type AccusedPartyKey } from "@/lib/parties";
+import { normalizeTags, tagsToInput } from "@/lib/tags";
 import { STATUS_META, normalizeStatus } from "@/lib/status";
 import type { ArchiveCase, LegalStatusKey } from "@/lib/types";
 import {
@@ -54,6 +55,7 @@ export function StaffEditPanel({
   const [party, setParty] = useState<AccusedPartyKey>(
     (caseData.accused_party as AccusedPartyKey) || "",
   );
+  const [tagsInput, setTagsInput] = useState(tagsToInput(caseData.tags));
   const [caseNumber, setCaseNumber] = useState(caseData.case_number || "");
   const [status, setStatus] = useState<LegalStatusKey>(
     normalizeStatus(caseData.status),
@@ -82,6 +84,7 @@ export function StaffEditPanel({
     setVillage(caseData.village || "");
     setCategory(caseData.crime_category || "");
     setParty((caseData.accused_party as AccusedPartyKey) || "");
+    setTagsInput(tagsToInput(caseData.tags));
     setCaseNumber(caseData.case_number || "");
     setStatus(normalizeStatus(caseData.status));
     setVerdict(caseData.verdict_summary || "");
@@ -108,6 +111,7 @@ export function StaffEditPanel({
         village: village.trim(),
         crime_category: category || undefined,
         accused_party: party,
+        tags: normalizeTags(tagsInput),
         case_number: caseNumber.trim(),
         legal_status: status,
         verdict_summary: verdict.trim(),
@@ -134,6 +138,7 @@ export function StaffEditPanel({
         village: res.village || village,
         crime_category: res.crime_category || category,
         accused_party: res.accused_party ?? party,
+        tags: Array.isArray(res.tags) ? res.tags : normalizeTags(tagsInput),
         case_number: res.case_number || caseNumber,
         status: nextStatus,
         verdict_summary: res.verdict_summary || verdict,
@@ -313,6 +318,15 @@ export function StaffEditPanel({
               />
             </label>
           </div>
+          <label className={labelCls}>
+            হ্যাশট্যাগ (সার্চের জন্য)
+            <input
+              className={field}
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder="#বিএনপি #হুমকি #পটুয়াখালী"
+            />
+          </label>
           <label className={labelCls}>
             রায় / নোট
             <textarea

@@ -7,6 +7,7 @@ import type { ArchiveCase } from "@/lib/types";
 import { StatusChip } from "./status-chip";
 import { formatCount } from "@/lib/engagement";
 import { categoryLabel } from "@/lib/categories";
+import { CaseHashtags } from "./case-hashtags";
 import { resolveCaseThumbnail, youtubeThumbUrl } from "@/lib/thumbnails";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -101,6 +102,13 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
             {" · "}
             {c.date && c.date !== "—" ? c.date : "সম্প্রতি"}
           </p>
+          {c.tags && c.tags.length > 0 ? (
+            <CaseHashtags
+              tags={c.tags.slice(0, 3)}
+              className="mt-1"
+              linkSearch={false}
+            />
+          ) : null}
         </div>
       </div>
     </Link>

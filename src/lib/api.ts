@@ -31,6 +31,7 @@ function listToArchive(item: CaseListItem): ArchiveCase {
     village: item.village,
     crime_category: item.crime_category,
     accused_party: item.accused_party,
+    tags: Array.isArray(item.tags) ? item.tags : [],
     date:
       formatDate(item.incident_date) !== "—"
         ? formatDate(item.incident_date)
@@ -89,6 +90,7 @@ function detailToArchive(d: CaseDetail): ArchiveCase {
     village: d.village,
     crime_category: d.crime_category,
     accused_party: d.accused_party,
+    tags: Array.isArray(d.tags) ? d.tags : [],
     date:
       formatDate(d.incident_date) !== "—"
         ? formatDate(d.incident_date)
@@ -192,6 +194,7 @@ export async function submitCase(body: {
   village?: string;
   crime_category?: string;
   accused_party?: string;
+  tags?: string[] | string;
 }) {
   const thikana =
     body.location_text?.trim() ||
@@ -216,6 +219,7 @@ export async function submitCase(body: {
       thana: body.thana || "",
       village: body.village || "",
       accused_party: body.accused_party || "",
+      tags: body.tags || "",
       visibility: "published",
     }),
   });

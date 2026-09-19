@@ -21,6 +21,7 @@ export type CaseListItem = {
   village?: string;
   crime_category?: string;
   accused_party?: string;
+  tags?: string[];
   view_count?: number;
   like_count?: number;
   comment_count?: number;
@@ -48,6 +49,7 @@ export type CaseDetail = {
   location_text?: string;
   crime_category?: string;
   accused_party?: string;
+  tags?: string[];
   media: {
     provider: string;
     embed_id: string;
@@ -90,6 +92,7 @@ export type ArchiveCase = {
   village?: string;
   crime_category?: string;
   accused_party?: string;
+  tags?: string[];
   date: string;
   dur: string;
   status: LegalStatusKey;

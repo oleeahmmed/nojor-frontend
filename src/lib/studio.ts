@@ -95,6 +95,7 @@ export type CaseStaffEditBody = {
   location_text?: string;
   crime_category?: string;
   accused_party?: string;
+  tags?: string[] | string;
   case_number?: string;
   police_station?: string;
   verdict_summary?: string;
@@ -132,6 +133,7 @@ export async function staffEditCase(slug: string, body: CaseStaffEditBody) {
     village?: string;
     crime_category?: string;
     accused_party?: string;
+    tags?: string[];
     case_number?: string;
     police_station?: string;
     verdict_summary?: string;
