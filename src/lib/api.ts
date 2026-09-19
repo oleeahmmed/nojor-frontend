@@ -149,7 +149,7 @@ export async function fetchCases(params?: {
   q.set("sort", params?.sort || "rank");
   if (params?.prefer_district) q.set("prefer_district", params.prefer_district);
   if (params?.page) q.set("page", String(params.page));
-  const res = await fetch(`${API}/api/cases?${q}`, {
+  const res = await fetch(`${API}/api/cases/?${q}`, {
     next: { revalidate: 15 },
   });
   if (!res.ok) throw new Error("api");
@@ -160,7 +160,7 @@ export async function fetchCases(params?: {
 
 export async function fetchCase(slug: string): Promise<ArchiveCase | null> {
   try {
-    const res = await fetch(`${API}/api/cases/${slug}`, {
+    const res = await fetch(`${API}/api/cases/${slug}/`, {
       next: { revalidate: 15 },
     });
     if (res.ok) {

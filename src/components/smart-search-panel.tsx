@@ -50,7 +50,7 @@ export function SmartSearchPanel() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API}/api/meta/locations`)
+    fetch(`${API}/api/meta/locations/`)
       .then((r) => r.json())
       .then((d) => {
         if (!cancelled) setLocs(d);
