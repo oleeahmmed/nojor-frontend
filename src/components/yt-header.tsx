@@ -82,12 +82,6 @@ export function YtHeader({
         <BrandLogo compact />
       </div>
 
-      {/* এলাকা + স্মার্ট সার্চ — topbar */}
-      <div className="relative z-50 flex min-w-0 shrink items-center gap-1 sm:gap-1.5">
-        <HomeDistrictFilter compact />
-        <SmartSearchPanel inline />
-      </div>
-
       <form
         onSubmit={goSearch}
         className="mx-auto hidden min-w-0 max-w-[420px] flex-1 items-center justify-center gap-2 px-2 lg:flex"
@@ -119,7 +113,7 @@ export function YtHeader({
         </Button>
       </form>
 
-      <div className="ml-auto flex shrink-0 items-center gap-0 sm:gap-0.5">
+      <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
         <Button
           variant="ghost"
           size="icon"
@@ -151,6 +145,12 @@ export function YtHeader({
             </Button>
           </>
         ) : null}
+
+        {/* এলাকা + স্মার্ট সার্চ — ডার্ক মোড বাটনের বামে */}
+        <div className="relative z-50 flex min-w-0 items-center gap-1 sm:gap-1.5">
+          <HomeDistrictFilter compact />
+          <SmartSearchPanel inline />
+        </div>
 
         <ThemeSwitcher />
 
