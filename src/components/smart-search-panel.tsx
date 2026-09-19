@@ -155,7 +155,7 @@ export function SmartSearchPanel({
           className={cn(
             "z-30 space-y-3 rounded-2xl border border-border bg-card p-3 shadow-lg sm:p-3.5",
             inline
-              ? "absolute left-0 top-[calc(100%+6px)] w-[min(calc(100vw-1.25rem),22rem)] sm:w-[26rem]"
+              ? "absolute left-0 top-[calc(100%+6px)] z-50 w-[min(calc(100vw-1.25rem),22rem)] sm:w-[26rem]"
               : "mt-2 shadow-sm",
           )}
         >

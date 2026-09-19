@@ -6,9 +6,7 @@ import type { ArchiveCase } from "@/lib/types";
 import { FILTERS, normalizeStatus } from "@/lib/status";
 import { CRIME_CATEGORIES } from "@/lib/categories";
 import { VideoCard } from "./video-card";
-import { HomeDistrictFilter } from "./home-district-filter";
 import { ChipScroller } from "./chip-scroller";
-import { SmartSearchPanel } from "./smart-search-panel";
 import { useApp } from "./providers";
 import { cn } from "@/lib/utils";
 
@@ -58,45 +56,35 @@ export function HomeFeed({
   return (
     <div className="w-full min-w-0">
       <div className="sticky top-0 z-20 w-full border-b border-border/50 bg-background">
-        {/* Row 1: এলাকা + স্মার্ট সার্চ + স্ট্যাটাস */}
-        <div className="flex min-w-0 items-center gap-1.5 px-2.5 py-1.5 sm:gap-2 sm:px-4 sm:py-2">
-          {role === "official" && district ? (
-            <p className="shrink-0 truncate text-sm">
-              কর্মকর্তা — <b>{district}</b>
-            </p>
-          ) : (
-            <HomeDistrictFilter className="shrink-0" />
-          )}
-          <SmartSearchPanel inline />
-          <ChipScroller flush className="min-w-0 flex-1 pb-0">
-            {FILTERS.map((f) => {
-              const on = filter === f.key;
-              return (
-                <button
-                  key={f.key}
-                  type="button"
-                  onClick={() => patchParam("status", f.key)}
-                  className={cn(
-                    "h-7 shrink-0 rounded-lg px-2.5 text-[12px] font-medium whitespace-nowrap transition sm:h-8 sm:px-3 sm:text-[13px]",
-                    on
-                      ? "bg-foreground text-background"
-                      : "bg-secondary text-foreground hover:bg-secondary/80",
-                  )}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
-          </ChipScroller>
-        </div>
-
-        {/* Row 2: অপরাধ ক্যাটাগরি */}
-        <ChipScroller className="pb-2 sm:pb-2.5">
+        {/* Status + Category — এক লাইন, স্ক্রলযোগ্য */}
+        <ChipScroller className="py-1.5 sm:py-2">
+          {FILTERS.map((f) => {
+            const on = filter === f.key;
+            return (
+              <button
+                key={`st-${f.key}`}
+                type="button"
+                onClick={() => patchParam("status", f.key)}
+                className={cn(
+                  "h-7 shrink-0 rounded-lg px-2.5 text-[12px] font-medium whitespace-nowrap transition sm:h-8 sm:px-3 sm:text-[13px]",
+                  on
+                    ? "bg-foreground text-background"
+                    : "bg-secondary text-foreground hover:bg-secondary/80",
+                )}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+          <span
+            aria-hidden
+            className="mx-0.5 h-5 w-px shrink-0 self-center bg-border sm:mx-1"
+          />
           {CRIME_CATEGORIES.map((c) => {
             const on = category === c.key;
             return (
               <button
-                key={c.key}
+                key={`cat-${c.key}`}
                 type="button"
                 onClick={() => patchParam("category", c.key)}
                 className={cn(
