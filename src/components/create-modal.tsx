@@ -194,13 +194,18 @@ export function CreateModal({
     }
     setLoginBusy(true);
     setError("");
-    const res = await studioLogin(loginUser.trim(), loginPass);
-    setLoginBusy(false);
-    if (res.ok) {
-      setStaffName(res.name || loginUser.trim());
-      setLoginPass("");
-    } else {
-      setError(res.error || "লগইন ব্যর্থ।");
+    try {
+      const res = await studioLogin(loginUser.trim(), loginPass);
+      if (res.ok) {
+        setStaffName(res.name || loginUser.trim());
+        setLoginPass("");
+      } else {
+        setError(res.error || "লগইন ব্যর্থ।");
+      }
+    } catch {
+      setError("লগইন ব্যর্থ — আবার চেষ্টা করুন।");
+    } finally {
+      setLoginBusy(false);
     }
   }
 

@@ -39,19 +39,50 @@ export function isStudioLoggedIn(): boolean {
 }
 
 export async function studioLogin(username: string, password: string) {
-  const res = await fetch(`${API_BASE}/api/auth/login/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-  const data = (await res.json()) as {
-    ok: boolean;
-    token?: string;
-    name?: string;
-    error?: string;
-  };
-  if (data.ok && data.token) saveStudio(data.token, data.name || username);
-  return data;
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/login/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const text = await res.text();
+    let data: {
+      ok?: boolean;
+      token?: string;
+      name?: string;
+      error?: string;
+    } = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      if (res.status === 404) {
+        return {
+          ok: false,
+          error:
+            "সার্ভারে টিম লগইন API নেই — public_staff.py ও urls.py আপলোড করে Passenger রিস্টার্ট করুন।",
+        };
+      }
+      return {
+        ok: false,
+        error: `লগইন ব্যর্থ (HTTP ${res.status})। সার্ভার JSON দেয়নি।`,
+      };
+    }
+    if (data.ok && data.token) saveStudio(data.token, data.name || username);
+    if (!data.ok && !data.error) {
+      data.error =
+        res.status === 403
+          ? "এই অ্যাকাউন্টের স্টাফ অনুমতি নেই (is_staff চালু করুন)।"
+          : res.status === 401
+            ? "ভুল ইউজারনেম বা পাসওয়ার্ড।"
+            : "লগইন ব্যর্থ।";
+    }
+    return { ok: Boolean(data.ok), ...data };
+  } catch {
+    return {
+      ok: false,
+      error: "সার্ভারে সংযোগ হয়নি। নেটওয়ার্ক বা API URL চেক করুন।",
+    };
+  }
 }
 
 export async function studioLogout() {
