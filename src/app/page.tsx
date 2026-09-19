@@ -7,16 +7,43 @@ import { HomeFeed } from "@/components/home-feed";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string }>;
+  searchParams: Promise<{
+    view?: string;
+    q?: string;
+    from?: string;
+    to?: string;
+    division?: string;
+    district?: string;
+    upazila?: string;
+    category?: string;
+    status?: string;
+    sort?: string;
+  }>;
 }) {
   const sp = await searchParams;
+  const view = sp.view || "home";
   let cases: ArchiveCase[] = [];
   try {
-    cases = await fetchCases();
+    const sort =
+      sp.sort === "new" || sp.sort === "viral"
+        ? sp.sort
+        : view === "viral"
+          ? "viral"
+          : "rank";
+    cases = await fetchCases({
+      q: sp.q,
+      date_from: sp.from,
+      date_to: sp.to,
+      division: sp.division,
+      district: sp.district,
+      upazila: sp.upazila,
+      category: sp.category && sp.category !== "all" ? sp.category : undefined,
+      status: sp.status && sp.status !== "all" ? sp.status : undefined,
+      sort,
+    });
   } catch {
     cases = [];
   }
-  const view = sp.view || "home";
 
   return (
     <Suspense fallback={<div className="p-8 text-muted-foreground">Loading…</div>}>

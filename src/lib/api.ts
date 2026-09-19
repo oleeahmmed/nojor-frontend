@@ -126,6 +126,15 @@ export async function fetchCases(params?: {
   status?: string;
   category?: string;
   upazila?: string;
+  thana?: string;
+  q?: string;
+  date_from?: string;
+  date_to?: string;
+  /** Nojor Nest rank (default) | new | viral */
+  sort?: "rank" | "new" | "viral";
+  /** Soft boost for home জেলা without hiding others */
+  prefer_district?: string;
+  page?: number;
 }): Promise<ArchiveCase[]> {
   const q = new URLSearchParams();
   if (params?.district) q.set("district", params.district);
@@ -133,6 +142,13 @@ export async function fetchCases(params?: {
   if (params?.status) q.set("status", params.status);
   if (params?.category) q.set("category", params.category);
   if (params?.upazila) q.set("upazila", params.upazila);
+  if (params?.thana) q.set("thana", params.thana);
+  if (params?.q) q.set("q", params.q);
+  if (params?.date_from) q.set("date_from", params.date_from);
+  if (params?.date_to) q.set("date_to", params.date_to);
+  q.set("sort", params?.sort || "rank");
+  if (params?.prefer_district) q.set("prefer_district", params.prefer_district);
+  if (params?.page) q.set("page", String(params.page));
   const res = await fetch(`${API}/api/cases?${q}`, {
     next: { revalidate: 15 },
   });
@@ -169,11 +185,38 @@ export async function submitCase(body: {
   village?: string;
   crime_category?: string;
 }) {
-  const res = await fetch(`${API}/api/submit`, {
+  const thikana =
+    body.location_text?.trim() ||
+    [body.village, body.thana, body.upazila, body.district, body.division]
+      .map((p) => (p || "").trim())
+      .filter(Boolean)
+      .join(", ");
+
+  // cPanel Passenger: Bolt /api/submit নেই — Django /public/submit/ ব্যবহার
+  const res = await fetch(`${API}/public/submit/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      title: body.title,
+      url: body.source_url,
+      thikana: thikana || body.district || "বাংলাদেশ",
+      category: body.crime_category || "other",
+      summary: body.description || "",
+      division: body.division || "",
+      district: body.district || "",
+      upazila: body.upazila || "",
+      thana: body.thana || "",
+      village: body.village || "",
+      visibility: "published",
+    }),
   });
+  if (!res.ok) {
+    try {
+      return await res.json();
+    } catch {
+      return { ok: false, error: `সাবমিট ব্যর্থ (${res.status})` };
+    }
+  }
   return res.json();
 }
 

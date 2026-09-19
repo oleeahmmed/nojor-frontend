@@ -46,7 +46,7 @@ function SubmitForm() {
       if (res?.ok) setOk(true);
       else setError(res?.error || "Failed");
     } catch {
-      setOk(true);
+      setError("নেটওয়ার্ক ত্রুটি — আবার চেষ্টা করুন।");
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ function SubmitForm() {
         </p>
         {ok ? (
           <p className="mt-5 rounded-xl bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
-            জমা হয়েছে। যাচাইয়ের পর প্রকাশ করা হবে।
+            জমা হয়েছে। কেস প্রকাশিত হয়েছে।
           </p>
         ) : (
           <form onSubmit={onSubmit} className="mt-5 space-y-3">

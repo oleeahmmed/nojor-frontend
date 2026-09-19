@@ -319,7 +319,7 @@ export function CreateModal({
       if (res?.ok) setOk(true);
       else setError(res?.error || "জমা ব্যর্থ হয়েছে।");
     } catch {
-      setOk(true);
+      setError("নেটওয়ার্ক ত্রুটি — আবার চেষ্টা করুন।");
     } finally {
       setLoading(false);
     }
@@ -484,7 +484,7 @@ export function CreateModal({
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
               {okSlug
                 ? "ভিডিও এখন আর্কাইভে লাইভ।"
-                : "যাচাইয়ের পর আর্কাইভে প্রকাশ করা হবে। ধন্যবাদ।"}
+                : "কেস প্রকাশিত হয়েছে। Admin → Cases এ দেখা যাবে।"}
             </p>
             <div className="mt-8 flex w-full max-w-xs flex-col gap-2">
               {okSlug ? (

@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { ArchiveCase } from "@/lib/types";
 import { FILTERS, normalizeStatus } from "@/lib/status";
 import { CRIME_CATEGORIES } from "@/lib/categories";
 import { VideoCard } from "./video-card";
 import { HomeDistrictFilter } from "./home-district-filter";
 import { ChipScroller } from "./chip-scroller";
+import { SmartSearchPanel } from "./smart-search-panel";
 import { useApp } from "./providers";
 import { cn } from "@/lib/utils";
 
@@ -20,15 +22,19 @@ export function HomeFeed({
   query?: string;
 }) {
   const { role, district, homeDistrict } = useApp();
-  const [filter, setFilter] = useState("all");
-  const [category, setCategory] = useState("all");
+  const router = useRouter();
+  const params = useSearchParams();
+
+  const filter = params.get("status") || "all";
+  const category = params.get("category") || "all";
 
   const activeDistrict =
     role === "official" && district ? district : homeDistrict;
 
   const shown = useMemo(() => {
     let list = [...cases];
-    if (activeDistrict) {
+    // Soft home-district focus only when no hard district filter in URL
+    if (activeDistrict && !params.get("district")) {
       list = list.filter((c) => c.district === activeDistrict);
     }
     if (view === "viral") list = list.filter((c) => c.trend);
@@ -38,34 +44,31 @@ export function HomeFeed({
       list = list.filter((c) =>
         ["no_action", "reported"].includes(normalizeStatus(c.status)),
       );
-    if (filter !== "all") {
-      list = list.filter((c) => normalizeStatus(c.status) === filter);
-    }
-    if (category !== "all") {
-      list = list.filter((c) => c.crime_category === category);
-    }
-    const q = query.trim().toLowerCase();
-    if (q) {
-      list = list.filter((c) =>
-        [c.title, c.summary, c.district, c.division, c.crime_category]
-          .filter(Boolean)
-          .some((s) => String(s).toLowerCase().includes(q)),
-      );
-    }
     return list;
-  }, [cases, filter, category, activeDistrict, view, query]);
+  }, [cases, activeDistrict, view, params]);
+
+  function patchParam(key: string, value: string) {
+    const sp = new URLSearchParams(params.toString());
+    if (!value || value === "all") sp.delete(key);
+    else sp.set(key, value);
+    const qs = sp.toString();
+    router.push(qs ? `/?${qs}` : "/");
+  }
 
   return (
     <div className="w-full min-w-0">
       <div className="sticky top-0 z-20 w-full border-b border-border/50 bg-background">
-        <div className="flex min-w-0 items-center gap-2 px-2.5 py-1.5 sm:gap-3 sm:px-4 sm:py-2">
-          {role === "official" && district ? (
-            <p className="truncate text-sm">
-              কর্মকর্তা — <b>{district}</b>
-            </p>
-          ) : (
-            <HomeDistrictFilter />
-          )}
+        <div className="flex min-w-0 flex-col gap-2 px-2.5 py-1.5 sm:gap-2.5 sm:px-4 sm:py-2">
+          <div className="flex min-w-0 items-center gap-2">
+            {role === "official" && district ? (
+              <p className="truncate text-sm">
+                কর্মকর্তা — <b>{district}</b>
+              </p>
+            ) : (
+              <HomeDistrictFilter />
+            )}
+          </div>
+          <SmartSearchPanel />
         </div>
 
         <ChipScroller className="pb-1">
@@ -75,7 +78,7 @@ export function HomeFeed({
               <button
                 key={f.key}
                 type="button"
-                onClick={() => setFilter(f.key)}
+                onClick={() => patchParam("status", f.key)}
                 className={cn(
                   "h-7 shrink-0 rounded-lg px-2.5 text-[12px] font-medium whitespace-nowrap transition sm:h-8 sm:px-3 sm:text-[13px]",
                   on
@@ -96,7 +99,7 @@ export function HomeFeed({
               <button
                 key={c.key}
                 type="button"
-                onClick={() => setCategory(c.key)}
+                onClick={() => patchParam("category", c.key)}
                 className={cn(
                   "h-7 shrink-0 rounded-lg px-2.5 text-[12px] font-medium whitespace-nowrap transition sm:h-8 sm:px-3 sm:text-[13px]",
                   on
@@ -114,7 +117,7 @@ export function HomeFeed({
       <div className="w-full min-w-0 px-2.5 pb-28 pt-3 sm:px-4 sm:pb-24 sm:pt-4">
         {query.trim() ? (
           <p className="mb-3 text-sm text-muted-foreground sm:mb-4">
-            Search results for{" "}
+            সার্চ ফলাফল:{" "}
             <span className="font-semibold text-foreground">
               “{query.trim()}”
             </span>
@@ -134,7 +137,7 @@ export function HomeFeed({
                 ? `"${query.trim()}" এর সাথে মিলে এমন কেস নেই।`
                 : activeDistrict
                   ? `${activeDistrict} এ এখনো কেস নেই — সব জেলা দেখতে × চাপুন।`
-                  : "অন্য ফিল্টার চেষ্টা করুন অথবা নতুন কেস জমা দিন।"}
+                  : "স্মার্ট সার্চ বা অন্য ফিল্টার চেষ্টা করুন।"}
             </p>
           </div>
         )}
