@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Home, MoreHorizontal, Plus, UserRound } from "lucide-react";
 import { useState } from "react";
