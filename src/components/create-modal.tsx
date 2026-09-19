@@ -136,6 +136,9 @@ export function CreateModal({
       studioMe().then((r) => {
         if (!r.ok) setStaffName("");
       });
+    } else {
+      // Open on team-login tab so admin/staff can sign in quickly
+      setTab("upload");
     }
   }, [open]);
 

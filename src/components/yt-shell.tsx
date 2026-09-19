@@ -10,7 +10,6 @@ import { NotificationsModal } from "./notifications-modal";
 import { AreaPickerModal } from "./area-picker-modal";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { useApp } from "./providers";
-import { useStudioSession } from "@/hooks/use-studio-session";
 
 export function YtShell({
   children,
@@ -27,7 +26,6 @@ export function YtShell({
   const search = useSearchParams();
   const router = useRouter();
   const { areaPickerOpen, openAreaPicker, closeAreaPicker } = useApp();
-  const studioOk = useStudioSession();
   const view = search.get("view");
   const active = view || "home";
   const forceCreate =
@@ -74,7 +72,7 @@ export function YtShell({
       <YtHeader
         onMenu={() => setMenuOpen((v) => !v)}
         onOfficial={() => setOfficialOpen(true)}
-        onCreate={studioOk ? openCreate : undefined}
+        onCreate={openCreate}
         onNotifications={() => setNotifsOpen(true)}
       />
 
@@ -100,14 +98,10 @@ export function YtShell({
             setOfficialOpen(true);
             closeAfterNav();
           }}
-          onCreate={
-            studioOk
-              ? () => {
-                  openCreate();
-                  closeAfterNav();
-                }
-              : undefined
-          }
+          onCreate={() => {
+            openCreate();
+            closeAfterNav();
+          }}
           onNavigate={closeAfterNav}
         />
 

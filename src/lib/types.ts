@@ -107,6 +107,9 @@ export type ArchiveCase = {
   has_verdict?: boolean;
   verdict_summary?: string;
   verdict_date?: string | null;
+  incident_date?: string | null;
+  police_station?: string;
+  location_text?: string;
   verdict_agree?: number;
   verdict_disagree?: number;
   verdict_neutral?: number;

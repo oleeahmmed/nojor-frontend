@@ -8,6 +8,7 @@ import type { LegalStatusKey } from "@/lib/types";
 import { StatusChip } from "@/components/status-chip";
 import { useApp } from "@/components/providers";
 import { OfficialStatusPanel } from "@/components/official-status-panel";
+import { StaffEditPanel } from "@/components/staff-edit-panel";
 import { EngagementBar } from "@/components/engagement-bar";
 import { CommentsPanel } from "@/components/comments-panel";
 import { VerdictPanel } from "@/components/verdict-panel";
@@ -16,6 +17,7 @@ import { formatCount } from "@/lib/engagement";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { RelatedThumb } from "./related-thumb";
+import { useStudioSession } from "@/hooks/use-studio-session";
 
 /**
  * YouTube watch layout:
@@ -32,6 +34,7 @@ export function WatchView({
   related: ArchiveCase[];
 }) {
   const { role } = useApp();
+  const studioOk = useStudioSession();
   const [commentsOpen, setCommentsOpen] = useState(true);
   const [commentCount, setCommentCount] = useState(c.comment_count);
   const [views, setViews] = useState(c.view_count);
@@ -71,19 +74,19 @@ export function WatchView({
 
           <div className="px-3 sm:px-0">
             <h1 className="mt-3 text-[18px] font-bold leading-snug tracking-[-0.02em] sm:text-[20px]">
-              {c.title}
+              {caseData.title}
             </h1>
 
             <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3">
                 <Avatar>
                   <AvatarFallback className="bg-primary text-sm font-bold text-primary-foreground">
-                    {(c.district || "N").slice(0, 1)}
+                    {(caseData.district || "N").slice(0, 1)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">
-                    {c.district} Archive
+                    {caseData.district} Archive
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {formatCount(views)} views
@@ -93,7 +96,7 @@ export function WatchView({
               </div>
               <EngagementBar
                 slug={c.slug}
-                title={c.title}
+                title={caseData.title}
                 initialViews={c.view_count}
                 initialLikes={c.like_count}
                 initialDislikes={c.dislike_count}
@@ -106,10 +109,18 @@ export function WatchView({
 
             <VerdictPanel key={`verdict-${c.slug}-${status}`} c={caseData} />
 
-            {role === "official" && (
+            <StaffEditPanel
+              caseData={caseData}
+              onUpdated={(patch) => {
+                setCaseData((prev) => ({ ...prev, ...patch }));
+                if (patch.status) setStatus(patch.status);
+              }}
+            />
+
+            {role === "official" && !studioOk && (
               <OfficialStatusPanel
                 slug={c.slug}
-                district={c.district}
+                district={caseData.district}
                 currentStatus={status}
                 onUpdated={(next: LegalStatusKey, verdictSummary?: string) => {
                   setStatus(next);

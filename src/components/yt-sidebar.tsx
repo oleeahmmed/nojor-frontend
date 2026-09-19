@@ -11,6 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useApp } from "./providers";
+import { useStudioSession } from "@/hooks/use-studio-session";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -152,6 +153,7 @@ function SidebarBody({
 }) {
   const { role, district, homeDistrict, areaPickerOpen, openAreaPicker } =
     useApp();
+  const studioOk = useStudioSession();
 
   return (
     <>
@@ -172,7 +174,14 @@ function SidebarBody({
           className="mb-0.5 flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/70"
         >
           <Plus className="h-5 w-5 text-primary" />
-          <span className="font-medium">Create</span>
+          <span className="min-w-0">
+            <span className="block font-medium">
+              {studioOk ? "Create" : "টিম লগইন"}
+            </span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {studioOk ? "ভিডিও আপলোড" : "Admin / staff"}
+            </span>
+          </span>
         </button>
       ) : null}
       <button

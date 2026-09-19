@@ -114,6 +114,8 @@ function detailToArchive(d: CaseDetail): ArchiveCase {
     has_verdict: Boolean(d.has_verdict),
     verdict_summary: d.verdict_summary,
     verdict_date: d.verdict_date,
+    incident_date: d.incident_date,
+    location_text: d.location_text,
     verdict_agree: d.verdict_agree ?? 0,
     verdict_disagree: d.verdict_disagree ?? 0,
     verdict_neutral: d.verdict_neutral ?? 0,

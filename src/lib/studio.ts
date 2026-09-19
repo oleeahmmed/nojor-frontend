@@ -39,7 +39,7 @@ export function isStudioLoggedIn(): boolean {
 }
 
 export async function studioLogin(username: string, password: string) {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+  const res = await fetch(`${API_BASE}/api/auth/login/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -59,7 +59,7 @@ export async function studioLogout() {
   clearStudio();
   if (!token) return;
   try {
-    await fetch(`${API_BASE}/api/auth/logout`, {
+    await fetch(`${API_BASE}/api/auth/logout/`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -73,7 +73,7 @@ export async function studioMe(): Promise<{ ok: boolean; name?: string }> {
   const token = getStudioToken();
   if (!token) return { ok: false };
   try {
-    const res = await fetch(`${API_BASE}/api/auth/me`, {
+    const res = await fetch(`${API_BASE}/api/auth/me/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = (await res.json()) as { ok: boolean; name?: string };
@@ -82,6 +82,62 @@ export async function studioMe(): Promise<{ ok: boolean; name?: string }> {
   } catch {
     return { ok: false };
   }
+}
+
+export type CaseStaffEditBody = {
+  title?: string;
+  summary?: string;
+  district?: string;
+  division?: string;
+  upazila?: string;
+  thana?: string;
+  village?: string;
+  location_text?: string;
+  crime_category?: string;
+  case_number?: string;
+  police_station?: string;
+  verdict_summary?: string;
+  legal_status?: string;
+  visibility?: string;
+  incident_date?: string | null;
+  verdict_date?: string | null;
+  note?: string;
+};
+
+export async function staffEditCase(slug: string, body: CaseStaffEditBody) {
+  const token = getStudioToken();
+  if (!token) return { ok: false as const, error: "স্টাফ লগইন প্রয়োজন।" };
+  const res = await fetch(
+    `${API_BASE}/api/cases/${encodeURIComponent(slug)}/edit/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    },
+  );
+  return res.json() as Promise<{
+    ok?: boolean;
+    error?: string;
+    message?: string;
+    title?: string;
+    summary?: string;
+    district?: string;
+    division?: string;
+    upazila?: string;
+    thana?: string;
+    village?: string;
+    crime_category?: string;
+    case_number?: string;
+    police_station?: string;
+    verdict_summary?: string;
+    legal_status?: string;
+    visibility?: string;
+    incident_date?: string | null;
+    verdict_date?: string | null;
+  }>;
 }
 
 export type UploadResult = {
