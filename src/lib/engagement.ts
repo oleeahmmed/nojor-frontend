@@ -50,21 +50,22 @@ async function post(path: string, body: unknown) {
 }
 
 export async function recordView(slug: string) {
-  return post(`/api/cases/${slug}/view`, { visitor_key: getVisitorKey() });
+  // Name NOT required — anonymous visitor_key is enough
+  return post(`/api/cases/${slug}/view/`, { visitor_key: getVisitorKey() });
 }
 
 export async function reactToCase(
   slug: string,
   action: "like" | "dislike" | "none",
 ) {
-  return post(`/api/cases/${slug}/react`, {
+  return post(`/api/cases/${slug}/react/`, {
     visitor_key: getVisitorKey(),
     action,
   });
 }
 
 export async function shareCase(slug: string) {
-  return post(`/api/cases/${slug}/share`, { visitor_key: getVisitorKey() });
+  return post(`/api/cases/${slug}/share/`, { visitor_key: getVisitorKey() });
 }
 
 export async function fetchMyEngagement(
@@ -72,7 +73,7 @@ export async function fetchMyEngagement(
 ): Promise<EngagementStats | null> {
   try {
     const q = new URLSearchParams({ visitor_key: getVisitorKey() });
-    const res = await fetch(`${API}/api/cases/${slug}/me?${q}`, {
+    const res = await fetch(`${API}/api/cases/${slug}/me/?${q}`, {
       cache: "no-store",
       headers: await headers(),
     });
