@@ -70,10 +70,11 @@ export function YtHeader({
   return (
     <header className="z-40 flex h-14 w-full shrink-0 items-center gap-1 border-b border-border/60 bg-background px-1.5 sm:h-16 sm:gap-1.5 sm:px-3">
       <div className="flex shrink-0 items-center gap-0">
+        {/* Desktop/tablet sidebar toggle — mobile uses bottom “আরও” */}
         <Button
           variant="ghost"
           size="icon"
-          className="size-10 rounded-full sm:size-9"
+          className="hidden size-10 rounded-full md:inline-flex md:size-9"
           onClick={onMenu}
           aria-label="Menu"
         >
@@ -114,6 +115,30 @@ export function YtHeader({
       </form>
 
       <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
+        {/* Desktop create */}
+        {onCreate ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden h-9 rounded-full border-border px-3 md:inline-flex"
+            onClick={onCreate}
+          >
+            <Plus className="h-4 w-4" />
+            Create
+          </Button>
+        ) : null}
+
+        {/* এলাকা + স্মার্ট সার্চ — md+ (মোবাইলে “আরও” মেনুতে) */}
+        <div className="relative z-50 hidden min-w-0 items-center gap-1 md:flex sm:gap-1.5">
+          <HomeDistrictFilter compact />
+          <SmartSearchPanel inline />
+        </div>
+
+        <div className="hidden md:block">
+          <ThemeSwitcher />
+        </div>
+
+        {/* Mobile + desktop: Search & Notifications */}
         <Button
           variant="ghost"
           size="icon"
@@ -123,36 +148,6 @@ export function YtHeader({
         >
           <Search className="h-5 w-5" />
         </Button>
-        {onCreate ? (
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden h-9 rounded-full border-border px-3 sm:inline-flex"
-              onClick={onCreate}
-            >
-              <Plus className="h-4 w-4" />
-              Create
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-10 rounded-full sm:hidden"
-              onClick={onCreate}
-              aria-label="Create"
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-          </>
-        ) : null}
-
-        {/* এলাকা + স্মার্ট সার্চ — ডার্ক মোড বাটনের বামে */}
-        <div className="relative z-50 flex min-w-0 items-center gap-1 sm:gap-1.5">
-          <HomeDistrictFilter compact />
-          <SmartSearchPanel inline />
-        </div>
-
-        <ThemeSwitcher />
 
         <Button
           variant="ghost"
@@ -164,10 +159,11 @@ export function YtHeader({
           <Bell className="h-5 w-5" />
         </Button>
 
+        {/* Profile — desktop only (mobile: bottom bar) */}
         <button
           type="button"
           onClick={role === "official" ? onOfficial : openProfile}
-          className="mx-0.5 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mx-0"
+          className="mx-0.5 hidden rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring md:inline-flex sm:mx-0"
           title={
             role === "official"
               ? "কর্মকর্তা মোড"

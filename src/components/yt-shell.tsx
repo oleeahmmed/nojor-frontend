@@ -8,6 +8,7 @@ import { OfficialModal } from "./official-modal";
 import { CreateModal } from "./create-modal";
 import { NotificationsModal } from "./notifications-modal";
 import { AreaPickerModal } from "./area-picker-modal";
+import { MobileBottomNav } from "./mobile-bottom-nav";
 import { useApp } from "./providers";
 import { useStudioSession } from "@/hooks/use-studio-session";
 
@@ -66,18 +67,14 @@ export function YtShell({
     }
   }
 
-  const openCreate = studioOk
-    ? () => {
-        setCreateOpen(true);
-      }
-    : undefined;
+  const openCreate = () => setCreateOpen(true);
 
   return (
     <div className="fixed inset-0 z-0 flex h-[100dvh] w-full max-w-none flex-col overflow-hidden bg-background text-foreground">
       <YtHeader
         onMenu={() => setMenuOpen((v) => !v)}
         onOfficial={() => setOfficialOpen(true)}
-        onCreate={openCreate}
+        onCreate={studioOk ? openCreate : undefined}
         onNotifications={() => setNotifsOpen(true)}
       />
 
@@ -104,7 +101,7 @@ export function YtShell({
             closeAfterNav();
           }}
           onCreate={
-            openCreate
+            studioOk
               ? () => {
                   openCreate();
                   closeAfterNav();
@@ -114,10 +111,16 @@ export function YtShell({
           onNavigate={closeAfterNav}
         />
 
-        <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-background">
+        <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-background pb-16 md:pb-0">
           {children}
         </main>
       </div>
+
+      <MobileBottomNav
+        onCreate={openCreate}
+        onOfficial={() => setOfficialOpen(true)}
+        onArea={openAreaPicker}
+      />
 
       <OfficialModal open={officialOpen} onClose={() => setOfficialOpen(false)} />
       <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} />

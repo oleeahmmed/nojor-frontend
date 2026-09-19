@@ -101,7 +101,7 @@ export function HomeFeed({
         </ChipScroller>
       </div>
 
-      <div className="w-full min-w-0 px-2.5 pb-28 pt-3 sm:px-4 sm:pb-24 sm:pt-4">
+      <div className="w-full min-w-0 px-2.5 pb-32 pt-3 sm:px-4 sm:pb-24 sm:pt-4 md:pb-24">
         {query.trim() ? (
           <p className="mb-3 text-sm text-muted-foreground sm:mb-4">
             সার্চ ফলাফল:{" "}

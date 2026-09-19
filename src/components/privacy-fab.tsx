@@ -3,7 +3,7 @@
 import { BadgeCheck, Mail, Send, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { BRAND_MARK, BRAND_MARK_TODONTO } from "@/components/brand-logo";
+import { BRAND_MARK_TODONTO, NojorMarkSvg } from "@/components/brand-logo";
 import { COMMUNITY } from "@/lib/community";
 import { cn } from "@/lib/utils";
 
@@ -35,10 +35,15 @@ export function PrivacyFab() {
 
   const isTips = tab === "tips";
   const contact = isTips ? COMMUNITY.tips : COMMUNITY.official;
-  const mark = isTips ? BRAND_MARK : BRAND_MARK_TODONTO;
 
   return (
-    <div className="pointer-events-none fixed right-3 bottom-[max(0.85rem,env(safe-area-inset-bottom))] z-30 flex flex-col items-end gap-2.5 sm:right-5 sm:bottom-[max(1rem,env(safe-area-inset-bottom))] sm:gap-3">
+    <div
+      className={cn(
+        "pointer-events-none fixed right-3 z-30 flex flex-col items-end gap-2.5 sm:right-5 sm:gap-3",
+        /* sit above mobile bottom nav */
+        "bottom-[calc(3.75rem+max(0.35rem,env(safe-area-inset-bottom)))] md:bottom-[max(1rem,env(safe-area-inset-bottom))]",
+      )}
+    >
       {open ? (
         <div
           className="pointer-events-auto w-[min(340px,calc(100vw-1.5rem))] origin-bottom-right overflow-hidden rounded-2xl border border-emerald-900/10 bg-background text-foreground shadow-2xl animate-in fade-in slide-in-from-bottom-2 zoom-in-95 duration-200 dark:border-emerald-400/15"
@@ -49,13 +54,17 @@ export function PrivacyFab() {
             className="flex items-center gap-3 px-3.5 py-3 text-white sm:px-4 sm:py-3.5"
             style={{ backgroundImage: FAB.gradient }}
           >
-            <Image
-              src={mark}
-              alt=""
-              width={36}
-              height={36}
-              className="size-9 shrink-0 rounded-xl object-cover shadow-md ring-1 ring-white/25"
-            />
+            {isTips ? (
+              <NojorMarkSvg className="size-9 shrink-0 drop-shadow-md" />
+            ) : (
+              <Image
+                src={BRAND_MARK_TODONTO}
+                alt=""
+                width={36}
+                height={36}
+                className="size-9 shrink-0 rounded-xl object-cover shadow-md ring-1 ring-white/25"
+              />
+            )}
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-semibold leading-tight sm:text-[13.5px]">
                 {isTips ? "কীভাবে ভিডিও পাঠাবেন" : "পুলিশ / তদন্ত অ্যাক্সেস"}
@@ -94,15 +103,15 @@ export function PrivacyFab() {
           <div className="max-h-[min(42vh,300px)] space-y-2 overflow-y-auto px-3 py-3.5 sm:max-h-[min(50vh,360px)] sm:space-y-2.5 sm:px-3.5 sm:py-4">
             {isTips ? (
               <>
-                <ChatBubble mark={BRAND_MARK}>
+                <ChatBubble>
                   ভিডিও ফাইল ইমেইলে অ্যাটাচ করুন — বড় হলে Google Drive লিংক
                   দিলেই চলবে।
                 </ChatBubble>
-                <ChatBubble mark={BRAND_MARK}>
+                <ChatBubble>
                   ঘটনার তারিখ, জেলা ও সংক্ষিপ্ত বিবরণ লিখুন। নিজের নাম দেওয়ার
                   প্রয়োজন নেই।
                 </ChatBubble>
-                <ChatBubble mark={BRAND_MARK}>
+                <ChatBubble>
                   নজর টিম যাচাই করে প্রকাশ করবে। আপনার ইমেইল-পরিচয় কখনো প্রকাশ
                   হবে না।
                 </ChatBubble>
@@ -154,13 +163,7 @@ export function PrivacyFab() {
         {open ? (
           <X className="h-5 w-5" />
         ) : (
-          <Image
-            src={BRAND_MARK}
-            alt=""
-            width={44}
-            height={44}
-            className="size-full object-cover"
-          />
+          <NojorMarkSvg className="size-full p-1.5" title="" />
         )}
       </button>
     </div>
@@ -200,17 +203,21 @@ function ChatBubble({
   mark,
 }: {
   children: React.ReactNode;
-  mark: string;
+  mark?: string;
 }) {
   return (
     <div className="flex items-end gap-2">
-      <Image
-        src={mark}
-        alt=""
-        width={24}
-        height={24}
-        className="size-6 shrink-0 rounded-full object-cover ring-1 ring-black/10"
-      />
+      {mark ? (
+        <Image
+          src={mark}
+          alt=""
+          width={24}
+          height={24}
+          className="size-6 shrink-0 rounded-full object-cover ring-1 ring-black/10"
+        />
+      ) : (
+        <NojorMarkSvg className="size-6 shrink-0" title="" />
+      )}
       <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-muted/60 px-3 py-2 text-[12px] leading-relaxed text-foreground sm:px-3.5 sm:py-2.5 sm:text-[12.5px]">
         {children}
       </p>

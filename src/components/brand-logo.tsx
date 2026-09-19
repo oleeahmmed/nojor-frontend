@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
-/** PNG / FAB */
+/** PNG / FAB fallback */
 export const BRAND_MARK = "/brand/nojor-mark.png";
 export const BRAND_MARK_SVG = "/brand/nojor-mark.svg";
 /** তদন্ত / official variant */
@@ -18,22 +19,25 @@ export function NojorMarkSvg({
   className?: string;
   title?: string;
 }) {
+  const uid = useId().replace(/:/g, "");
+  const redId = `nojRed-${uid}`;
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 80 80"
       className={cn("shrink-0 bg-transparent", className)}
       role="img"
-      aria-hidden={title ? undefined : true}
-      aria-label={title}
+      aria-hidden={!title || undefined}
+      aria-label={title || undefined}
     >
       <defs>
-        <radialGradient id="nojRed" cx="40%" cy="35%" r="70%">
+        <radialGradient id={redId} cx="40%" cy="35%" r="70%">
           <stop offset="0%" stopColor="#ff4d4d" />
           <stop offset="100%" stopColor="#cc0000" />
         </radialGradient>
       </defs>
-      <circle cx="40" cy="40" r="38" fill="url(#nojRed)" />
+      <circle cx="40" cy="40" r="38" fill={`url(#${redId})`} />
       <ellipse
         cx="40"
         cy="40"
