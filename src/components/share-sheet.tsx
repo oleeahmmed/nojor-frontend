@@ -172,75 +172,77 @@ export function ShareSheet({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="gap-0 overflow-hidden border-0 p-0 sm:max-w-[520px]"
+        className="flex max-h-[min(90dvh,640px)] w-[calc(100%-1.5rem)] flex-col gap-0 overflow-hidden border-0 p-0 sm:max-w-[520px]"
         overlayClassName="bg-black/50"
       >
-        <DialogHeader className="px-5 pb-1 pt-4">
+        <DialogHeader className="shrink-0 border-b border-border/50 px-5 pb-3 pt-4 pr-12">
           <DialogTitle className="text-[18px] font-semibold">Share</DialogTitle>
           <DialogDescription className="sr-only">
             লিংক কপি করুন অথবা অ্যাপে পাঠান
           </DialogDescription>
         </DialogHeader>
 
-        <div className="hide-scrollbar flex gap-4 overflow-x-auto px-5 py-4">
-          {TARGETS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => void onTarget(t)}
-              className="flex w-[68px] shrink-0 flex-col items-center gap-2"
-            >
-              <span
-                className={cn(
-                  "flex size-14 items-center justify-center rounded-full",
-                  t.bg,
-                  t.fg,
-                )}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+          <div className="flex gap-4 overflow-x-auto px-5 py-4 [scrollbar-width:thin]">
+            {TARGETS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => void onTarget(t)}
+                className="flex w-[68px] shrink-0 flex-col items-center gap-2"
               >
-                <TargetGlyph id={t.id} />
-              </span>
-              <span className="text-[12px] text-foreground">{t.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="px-5 pb-2">
-          <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/70 py-1 pl-4 pr-1">
-            <p className="min-w-0 flex-1 truncate text-[13px]">{shareUrl}</p>
-            <Button
-              type="button"
-              size="sm"
-              className="h-8 shrink-0 rounded-full px-4"
-              onClick={() => void copyLink()}
-            >
-              {copied ? (
-                <span className="inline-flex items-center gap-1">
-                  <Check className="h-3.5 w-3.5" /> Copied
+                <span
+                  className={cn(
+                    "flex size-14 items-center justify-center rounded-full",
+                    t.bg,
+                    t.fg,
+                  )}
+                >
+                  <TargetGlyph id={t.id} />
                 </span>
-              ) : (
-                "Copy"
-              )}
-            </Button>
+                <span className="text-[12px] text-foreground">{t.label}</span>
+              </button>
+            ))}
           </div>
-        </div>
 
-        <label className="flex items-center gap-2 px-5 py-4 text-sm">
-          <input
-            type="checkbox"
-            checked={startAt}
-            onChange={(e) => setStartAt(e.target.checked)}
-            className="size-4 rounded border-border"
-          />
-          <span>Start at</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={time}
-            disabled={!startAt}
-            onChange={(e) => setTime(e.target.value)}
-            className="h-8 w-16 rounded-md border border-border bg-background px-2 text-sm disabled:opacity-40"
-          />
-        </label>
+          <div className="px-5 pb-2">
+            <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/70 py-1 pl-4 pr-1">
+              <p className="min-w-0 flex-1 truncate text-[13px]">{shareUrl}</p>
+              <Button
+                type="button"
+                size="sm"
+                className="h-8 shrink-0 rounded-full px-4"
+                onClick={() => void copyLink()}
+              >
+                {copied ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Check className="h-3.5 w-3.5" /> Copied
+                  </span>
+                ) : (
+                  "Copy"
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 px-5 pb-5 pt-3 text-sm">
+            <input
+              type="checkbox"
+              checked={startAt}
+              onChange={(e) => setStartAt(e.target.checked)}
+              className="size-4 rounded border-border"
+            />
+            <span>Start at</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={time}
+              disabled={!startAt}
+              onChange={(e) => setTime(e.target.value)}
+              className="h-8 w-16 rounded-md border border-border bg-background px-2 text-sm disabled:opacity-40"
+            />
+          </label>
+        </div>
       </DialogContent>
     </Dialog>
   );
