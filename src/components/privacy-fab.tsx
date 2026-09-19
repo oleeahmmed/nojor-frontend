@@ -1,9 +1,16 @@
 "use client";
 
-import { BadgeCheck, Mail, Send, X } from "lucide-react";
+import {
+  BadgeCheck,
+  HeartHandshake,
+  LifeBuoy,
+  Mail,
+  Send,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { BRAND_MARK_TODONTO, NojorMarkSvg } from "@/components/brand-logo";
+import { BRAND_MARK_TODONTO } from "@/components/brand-logo";
 import { COMMUNITY } from "@/lib/community";
 import { cn } from "@/lib/utils";
 
@@ -13,12 +20,13 @@ const FAB = {
   soft: "rgba(5, 150, 105, 0.14)",
 };
 
-type FabTab = "tips" | "access";
+type FabTab = "tips" | "access" | "donation";
 
 /**
  * Floating helper (bottom-right):
  * 1) কীভাবে ভিডিও পাঠাবেন
  * 2) পুলিশ/তদন্ত কর্মকর্তা অ্যাক্সেস
+ * 3) ডোনেশন / নন-প্রফিট সহায়তা
  */
 export function PrivacyFab() {
   const [open, setOpen] = useState(false);
@@ -33,14 +41,38 @@ export function PrivacyFab() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const isTips = tab === "tips";
-  const contact = isTips ? COMMUNITY.tips : COMMUNITY.official;
+  const contact =
+    tab === "tips"
+      ? COMMUNITY.tips
+      : tab === "access"
+        ? COMMUNITY.official
+        : COMMUNITY.donation;
+
+  const header =
+    tab === "tips"
+      ? {
+          title: "কীভাবে ভিডিও পাঠাবেন",
+          sub: "পরিচয় গোপন রেখে জমা দিন",
+          Icon: Send,
+        }
+      : tab === "access"
+        ? {
+            title: "পুলিশ / তদন্ত অ্যাক্সেস",
+            sub: "কর্মকর্তাদের জন্য আলাদা চ্যানেল",
+            Icon: BadgeCheck,
+          }
+        : {
+            title: "ডোনেশন / সহায়তা",
+            sub: "নন-প্রফিট — পরিচয় গোপন থাকবে",
+            Icon: HeartHandshake,
+          };
+
+  const HeaderIcon = header.Icon;
 
   return (
     <div
       className={cn(
         "pointer-events-none fixed right-3 z-30 flex flex-col items-end gap-2.5 sm:right-5 sm:gap-3",
-        /* sit above mobile bottom nav */
         "bottom-[calc(5.25rem+max(0.5rem,env(safe-area-inset-bottom)))] md:bottom-[max(1rem,env(safe-area-inset-bottom))]",
       )}
     >
@@ -54,26 +86,14 @@ export function PrivacyFab() {
             className="flex items-center gap-3 px-3.5 py-3 text-white sm:px-4 sm:py-3.5"
             style={{ backgroundImage: FAB.gradient }}
           >
-            {isTips ? (
-              <NojorMarkSvg className="size-9 shrink-0 drop-shadow-md" />
-            ) : (
-              <Image
-                src={BRAND_MARK_TODONTO}
-                alt=""
-                width={36}
-                height={36}
-                className="size-9 shrink-0 rounded-full object-cover shadow-md ring-1 ring-white/25"
-              />
-            )}
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/20 ring-1 ring-white/25">
+              <HeaderIcon className="h-5 w-5" strokeWidth={2.25} />
+            </span>
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-semibold leading-tight sm:text-[13.5px]">
-                {isTips ? "কীভাবে ভিডিও পাঠাবেন" : "পুলিশ / তদন্ত অ্যাক্সেস"}
+                {header.title}
               </p>
-              <p className="text-[11px] text-white/80">
-                {isTips
-                  ? "পরিচয় গোপন রেখে জমা দিন"
-                  : "কর্মকর্তাদের জন্য আলাদা চ্যানেল"}
-              </p>
+              <p className="text-[11px] text-white/80">{header.sub}</p>
             </div>
             <button
               type="button"
@@ -85,53 +105,78 @@ export function PrivacyFab() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-1 border-b border-border/60 bg-muted/30 p-1.5">
+          <div className="grid grid-cols-3 gap-1 border-b border-border/60 bg-muted/30 p-1.5">
             <TabBtn
-              active={isTips}
+              active={tab === "tips"}
               onClick={() => setTab("tips")}
               icon={<Send className="h-3.5 w-3.5" />}
-              label="ভিডিও পাঠান"
+              label="ভিডিও"
             />
             <TabBtn
-              active={!isTips}
+              active={tab === "access"}
               onClick={() => setTab("access")}
               icon={<BadgeCheck className="h-3.5 w-3.5" />}
-              label="অ্যাক্সেস নিন"
+              label="অ্যাক্সেস"
+            />
+            <TabBtn
+              active={tab === "donation"}
+              onClick={() => setTab("donation")}
+              icon={<HeartHandshake className="h-3.5 w-3.5" />}
+              label="ডোনেশন"
             />
           </div>
 
           <div className="max-h-[min(42vh,300px)] space-y-2 overflow-y-auto px-3 py-3.5 sm:max-h-[min(50vh,360px)] sm:space-y-2.5 sm:px-3.5 sm:py-4">
-            {isTips ? (
+            {tab === "tips" ? (
               <>
-                <ChatBubble>
+                <ChatBubble tone="tips">
                   ভিডিও ফাইল ইমেইলে অ্যাটাচ করুন — বড় হলে Google Drive লিংক
                   দিলেই চলবে।
                 </ChatBubble>
-                <ChatBubble>
+                <ChatBubble tone="tips">
                   ঘটনার তারিখ, জেলা ও সংক্ষিপ্ত বিবরণ লিখুন। নিজের নাম দেওয়ার
                   প্রয়োজন নেই।
                 </ChatBubble>
-                <ChatBubble>
+                <ChatBubble tone="tips">
                   নজর টিম যাচাই করে প্রকাশ করবে। আপনার ইমেইল-পরিচয় কখনো প্রকাশ
                   হবে না।
                 </ChatBubble>
               </>
-            ) : (
+            ) : null}
+
+            {tab === "access" ? (
               <>
-                <ChatBubble mark={BRAND_MARK_TODONTO}>
+                <ChatBubble tone="access">
                   পুলিশ বা তদন্ত কর্মকর্তা হিসেবে নজরে অ্যাক্সেস চাইলে নিচের
                   ইমেইলে আবেদন করুন।
                 </ChatBubble>
-                <ChatBubble mark={BRAND_MARK_TODONTO}>
+                <ChatBubble tone="access">
                   বিষয়ে লিখুন: নাম, পদবি, থানা/ইউনিট ও যোগাযোগ নম্বর। দাপ্তরিক
                   ইমেইল থেকে পাঠালে যাচাই দ্রুত হয়।
                 </ChatBubble>
-                <ChatBubble mark={BRAND_MARK_TODONTO}>
+                <ChatBubble tone="access">
                   অনুমোদন হলে অ্যাক্সেস কোড ও নির্দেশনা পাঠানো হবে। সাধারণ
                   নাগরিক এই ঠিকানায় ভিডিও পাঠাবেন না।
                 </ChatBubble>
               </>
-            )}
+            ) : null}
+
+            {tab === "donation" ? (
+              <>
+                <ChatBubble tone="donation">
+                  নজর একটি নন-প্রফিট প্রকল্প। চাইলে ডোনেশন দিয়ে আমাদের সাহায্য
+                  করতে পারেন — সবাই সাহায্য করলে এটা আরও এগিয়ে যেতে পারবে।
+                </ChatBubble>
+                <ChatBubble tone="donation">
+                  ইমেইলে কথা বলে সাহায্য করতে পারেন:{" "}
+                  <strong className="font-semibold">nojorhelp@gmail.com</strong>
+                </ChatBubble>
+                <ChatBubble tone="donation">
+                  সম্পূর্ণ তথ্য গোপন রাখা হবে। আমরা চাই না কারো পরিচয় প্রকাশ
+                  পাক — মূল লক্ষ্য সবাইকে নিরাপদ রেখে এই যুদ্ধে শামিল রাখা।
+                </ChatBubble>
+              </>
+            ) : null}
           </div>
 
           <div className="border-t border-border/60 px-3 py-2.5 sm:px-3.5 sm:py-3">
@@ -153,19 +198,17 @@ export function PrivacyFab() {
         aria-label="নজর সহায়তা"
         aria-expanded={open}
         className={cn(
-          "pointer-events-auto flex size-12 items-center justify-center overflow-hidden rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 sm:size-11",
+          "pointer-events-auto flex size-12 items-center justify-center rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 sm:size-12",
           open
             ? "bg-background text-foreground ring-1 ring-border"
-            : "bg-transparent",
+            : "text-white shadow-[0_10px_28px_-8px_rgba(5,150,105,0.65)]",
         )}
+        style={open ? undefined : { backgroundImage: FAB.gradient }}
       >
         {open ? (
           <X className="h-5 w-5" />
         ) : (
-          <NojorMarkSvg
-            className="size-12 drop-shadow-md sm:size-11"
-            title="নজর সহায়তা"
-          />
+          <LifeBuoy className="h-6 w-6" strokeWidth={2.25} />
         )}
       </button>
     </div>
@@ -188,7 +231,7 @@ function TabBtn({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex h-9 items-center justify-center gap-1.5 rounded-xl text-[11.5px] font-semibold transition sm:text-[12px]",
+        "flex h-9 items-center justify-center gap-1 rounded-xl text-[11px] font-semibold transition sm:gap-1.5 sm:text-[12px]",
         active
           ? "bg-background text-emerald-700 shadow-sm ring-1 ring-emerald-900/10 dark:text-emerald-400 dark:ring-emerald-400/20"
           : "text-muted-foreground hover:text-foreground",
@@ -202,23 +245,32 @@ function TabBtn({
 
 function ChatBubble({
   children,
-  mark,
+  tone,
 }: {
   children: React.ReactNode;
-  mark?: string;
+  tone: FabTab;
 }) {
   return (
     <div className="flex items-end gap-2">
-      {mark ? (
+      {tone === "access" ? (
         <Image
-          src={mark}
+          src={BRAND_MARK_TODONTO}
           alt=""
           width={24}
           height={24}
           className="size-6 shrink-0 rounded-full object-cover ring-1 ring-black/10"
         />
       ) : (
-        <NojorMarkSvg className="size-6 shrink-0" title="" />
+        <span
+          className="flex size-6 shrink-0 items-center justify-center rounded-full text-white"
+          style={{ backgroundImage: FAB.gradient }}
+        >
+          {tone === "donation" ? (
+            <HeartHandshake className="h-3.5 w-3.5" />
+          ) : (
+            <Send className="h-3 w-3" />
+          )}
+        </span>
       )}
       <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-muted/60 px-3 py-2 text-[12px] leading-relaxed text-foreground sm:px-3.5 sm:py-2.5 sm:text-[12.5px]">
         {children}
