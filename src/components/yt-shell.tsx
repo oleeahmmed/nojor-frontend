@@ -29,12 +29,20 @@ export function YtShell({
   const studioOk = useStudioSession();
   const view = search.get("view");
   const active = view || "home";
+  const forceCreate =
+    search.get("studio") === "1" || search.get("create") === "1";
 
   useEffect(() => {
     if (view !== "area") return;
     openAreaPicker();
     router.replace("/");
   }, [view, openAreaPicker, router]);
+
+  useEffect(() => {
+    if (!forceCreate) return;
+    setCreateOpen(true);
+    router.replace("/");
+  }, [forceCreate, router]);
 
   useEffect(() => {
     if (collapseSidebar) {
@@ -112,9 +120,7 @@ export function YtShell({
       </div>
 
       <OfficialModal open={officialOpen} onClose={() => setOfficialOpen(false)} />
-      {studioOk ? (
-        <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} />
-      ) : null}
+      <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} />
       <NotificationsModal open={notifsOpen} onClose={() => setNotifsOpen(false)} />
       <AreaPickerModal open={areaPickerOpen} onClose={closeAreaPicker} />
     </div>
