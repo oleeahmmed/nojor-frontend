@@ -65,9 +65,11 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
         <div className="absolute left-1.5 top-1.5 sm:left-2 sm:top-2">
           <StatusChip status={c.status} />
         </div>
-        <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/80 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-white sm:bottom-2 sm:right-2 sm:text-[11px]">
-          {c.dur && c.dur !== "—" ? c.dur : "0:00"}
-        </span>
+        {c.dur && c.dur !== "—" ? (
+          <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/80 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-white sm:bottom-2 sm:right-2 sm:text-[11px]">
+            {c.dur}
+          </span>
+        ) : null}
       </div>
 
       <div className="mt-2.5 flex gap-2.5 sm:mt-3 sm:gap-3">

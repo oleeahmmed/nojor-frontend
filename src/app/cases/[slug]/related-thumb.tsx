@@ -38,9 +38,11 @@ export function RelatedThumb({ c }: { c: ArchiveCase }) {
           }}
         />
       )}
-      <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1 text-[10px] font-medium text-white">
-        {c.dur && c.dur !== "—" ? c.dur : "0:00"}
-      </span>
+      {c.dur && c.dur !== "—" ? (
+        <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1 text-[10px] font-medium text-white">
+          {c.dur}
+        </span>
+      ) : null}
     </div>
   );
 }

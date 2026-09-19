@@ -29,9 +29,14 @@ export function resolveCaseThumbnail(c: {
   return "";
 }
 
-export function formatDuration(seconds?: number | null, fallback = "0:00"): string {
-  if (seconds == null || seconds < 0 || Number.isNaN(seconds)) return fallback;
-  const s = Math.floor(seconds);
+export function formatDuration(
+  seconds?: number | null | string,
+  fallback = "0:00",
+): string {
+  if (seconds == null || seconds === "") return fallback;
+  const n = Number(seconds);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  const s = Math.floor(n);
   const m = Math.floor(s / 60);
   const r = s % 60;
   if (m >= 60) {

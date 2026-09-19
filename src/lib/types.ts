@@ -54,6 +54,7 @@ export type CaseDetail = {
     original_status: string;
     original_url?: string;
     thumbnail_url?: string;
+    duration_seconds?: number | null;
   }[];
   sources: { title: string; url: string; publisher: string }[];
   status_history: {
@@ -68,6 +69,7 @@ export type CaseDetail = {
   comment_count?: number;
   share_count?: number;
   is_viral?: boolean;
+  duration_seconds?: number | null;
   has_verdict?: boolean;
   verdict_summary?: string;
   verdict_date?: string | null;

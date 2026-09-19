@@ -93,7 +93,10 @@ function detailToArchive(d: CaseDetail): ArchiveCase {
       formatDate(d.incident_date) !== "—"
         ? formatDate(d.incident_date)
         : "সম্প্রতি",
-    dur: "—",
+    dur: formatDuration(
+      d.duration_seconds ?? first?.duration_seconds,
+      "—",
+    ),
     status: normalizeStatus(d.legal_status),
     views: view_count ? formatCount(view_count) : "0",
     view_count,
