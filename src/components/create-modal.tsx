@@ -399,9 +399,9 @@ export function CreateModal({
         showCloseButton={false}
         overlayClassName="bg-black/55 dark:bg-black/75 backdrop-blur-[3px]"
         className={cn(
-          /* Mobile: bottom sheet · Desktop: centered card */
+          /* Mobile: bottom sheet slightly raised · Desktop: centered */
           "flex flex-col gap-0 overflow-hidden border-border bg-card p-0 text-card-foreground shadow-2xl ring-0",
-          "fixed inset-x-0 bottom-0 top-auto max-h-[min(100dvh,920px)] w-full max-w-none translate-x-0 translate-y-0 rounded-t-2xl",
+          "fixed inset-x-2 bottom-[max(0.85rem,env(safe-area-inset-bottom))] top-auto max-h-[min(90dvh,920px)] w-auto max-w-none translate-x-0 translate-y-0 rounded-2xl",
           "data-open:slide-in-from-bottom-4 data-closed:slide-out-to-bottom-4",
           "sm:inset-auto sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:max-h-[min(88dvh,780px)]",
           "sm:w-[min(560px,calc(100vw-1.5rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",

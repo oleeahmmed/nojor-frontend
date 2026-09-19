@@ -172,7 +172,7 @@ export function ShareSheet({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="flex max-h-[min(90dvh,640px)] w-[calc(100%-1.5rem)] flex-col gap-0 overflow-hidden border-0 p-0 sm:max-w-[520px]"
+        className="flex max-h-[min(85dvh,640px)] flex-col gap-0 overflow-hidden border-0 p-0 sm:max-w-[520px]"
         overlayClassName="bg-black/50"
       >
         <DialogHeader className="shrink-0 border-b border-border/50 px-5 pb-3 pt-4 pr-12">
