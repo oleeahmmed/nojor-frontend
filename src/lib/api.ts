@@ -234,11 +234,45 @@ export async function submitTip(body: {
   return res.json();
 }
 
-export async function redeemOfficial(code: string) {
-  const res = await fetch(`${API}/api/official/redeem`, {
+export async function redeemOfficial(code: string): Promise<{
+  ok?: boolean;
+  district?: string;
+  token?: string;
+  error?: string;
+  message?: string;
+}> {
+  const res = await fetch(`${API}/api/official/redeem/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ code }),
+  });
+  return res.json();
+}
+
+export async function updateCaseLegalStatus(
+  slug: string,
+  token: string,
+  body: {
+    status: string;
+    note?: string;
+    verdict_summary?: string;
+    source_url?: string;
+  },
+): Promise<{
+  ok?: boolean;
+  legal_status?: string;
+  label?: string;
+  verdict_summary?: string;
+  error?: string;
+  message?: string;
+}> {
+  const res = await fetch(`${API}/api/cases/${encodeURIComponent(slug)}/status/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
   });
   return res.json();
 }

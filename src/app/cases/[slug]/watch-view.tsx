@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ChevronDown, Clock, ExternalLink, FileText } from "lucide-react";
 import type { ArchiveCase } from "@/lib/types";
+import type { LegalStatusKey } from "@/lib/types";
 import { StatusChip } from "@/components/status-chip";
 import { useApp } from "@/components/providers";
+import { OfficialStatusPanel } from "@/components/official-status-panel";
 import { EngagementBar } from "@/components/engagement-bar";
 import { CommentsPanel } from "@/components/comments-panel";
 import { VerdictPanel } from "@/components/verdict-panel";
 import { VideoEmbed } from "@/components/video-embed";
 import { formatCount } from "@/lib/engagement";
-import { buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { RelatedThumb } from "./related-thumb";
@@ -35,13 +36,17 @@ export function WatchView({
   const [commentCount, setCommentCount] = useState(c.comment_count);
   const [views, setViews] = useState(c.view_count);
   const [descOpen, setDescOpen] = useState(false);
+  const [status, setStatus] = useState(c.status);
+  const [caseData, setCaseData] = useState(c);
 
   useEffect(() => {
     setCommentCount(c.comment_count);
     setViews(c.view_count);
     setCommentsOpen(true);
     setDescOpen(false);
-  }, [c.slug, c.comment_count, c.view_count]);
+    setStatus(c.status);
+    setCaseData(c);
+  }, [c.slug, c.comment_count, c.view_count, c.status, c]);
 
   const next = related.filter((r) => r.id !== c.id).slice(0, 16);
 
@@ -84,7 +89,7 @@ export function WatchView({
                     {formatCount(views)} views
                   </p>
                 </div>
-                <StatusChip status={c.status} />
+                <StatusChip status={status} />
               </div>
               <EngagementBar
                 slug={c.slug}
@@ -99,20 +104,25 @@ export function WatchView({
               />
             </div>
 
-            <VerdictPanel key={`verdict-${c.slug}`} c={c} />
+            <VerdictPanel key={`verdict-${c.slug}-${status}`} c={caseData} />
 
             {role === "official" && (
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft px-4 py-3">
-                <p className="text-sm">
-                  এই কেসে তদন্ত রিপোর্ট দিন (পরিচয় গোপন)।
-                </p>
-                <Link
-                  href={`/cases/${c.slug}/report`}
-                  className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
-                >
-                  রিপোর্ট দিন
-                </Link>
-              </div>
+              <OfficialStatusPanel
+                slug={c.slug}
+                district={c.district}
+                currentStatus={status}
+                onUpdated={(next: LegalStatusKey, verdictSummary?: string) => {
+                  setStatus(next);
+                  setCaseData((prev) => ({
+                    ...prev,
+                    status: next,
+                    has_verdict: ["convicted", "acquitted", "dismissed"].includes(
+                      next,
+                    ),
+                    verdict_summary: verdictSummary || prev.verdict_summary,
+                  }));
+                }}
+              />
             )}
 
             <button

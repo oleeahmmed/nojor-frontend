@@ -32,22 +32,15 @@ export function OfficialModal({
     setLoading(true);
     try {
       const res = await redeemOfficial(code.trim());
-      if (res?.ok && res.district) {
-        setOfficial(res.district);
+      if (res?.ok && res.district && res.token) {
+        setOfficial(res.district, res.token);
         setCode("");
-        return;
-      }
-      if (code.trim().length >= 6) {
-        setOfficial("ঢাকা");
-        setCode("");
+        onClose();
         return;
       }
       setError(res?.error || "কোড যাচাই হয়নি।");
     } catch {
-      if (code.trim().length >= 6) {
-        setOfficial("ঢাকা");
-        setCode("");
-      } else setError("কমপক্ষে ৬ অক্ষরের কোড দিন।");
+      setError("সার্ভারে সংযোগ হয়নি। পরে আবার চেষ্টা করুন।");
     } finally {
       setLoading(false);
     }
@@ -90,10 +83,11 @@ export function OfficialModal({
                   Verified official
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  এলাকা: <span className="font-medium text-foreground">{district}</span>
+                  এলাকা:{" "}
+                  <span className="font-medium text-foreground">{district}</span>
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  শুধু নিজ এলাকার কেস দেখা ও তদন্ত রিপোর্ট জমা দেওয়া যায়।
+                  শুধু নিজ এলাকার ভিডিওর তদন্ত/বিচার অবস্থা আপডেট করা যায়।
                 </p>
               </div>
               <div className="flex gap-2">
@@ -139,14 +133,14 @@ export function OfficialModal({
               ) : null}
 
               <ul className="space-y-1.5 rounded-2xl bg-muted/50 px-3.5 py-3 text-[12px] leading-relaxed text-muted-foreground">
-                <li>• কোড একবার ব্যবহারযোগ্য</li>
+                <li>• Admin থেকে দেওয়া access কোড দিন</li>
+                <li>• লগইন থাকলে ভিডিও পেজে অবস্থা আপডেট করা যায়</li>
                 <li>• পরিচয় শুধু নিরাপত্তা লগে থাকে</li>
-                <li>• রিপোর্ট মডারেটর যাচাই করে তবেই লাইভ</li>
               </ul>
 
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={loading || code.trim().length < 4}
                 className="h-11 w-full rounded-full text-[15px] font-semibold"
               >
                 {loading ? "যাচাই হচ্ছে…" : "যাচাই করুন"}
