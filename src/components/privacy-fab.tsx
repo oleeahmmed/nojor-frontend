@@ -62,7 +62,7 @@ export function PrivacyFab() {
                 alt=""
                 width={36}
                 height={36}
-                className="size-9 shrink-0 rounded-xl object-cover shadow-md ring-1 ring-white/25"
+                className="size-9 shrink-0 rounded-full object-cover shadow-md ring-1 ring-white/25"
               />
             )}
             <div className="min-w-0 flex-1">
@@ -156,14 +156,16 @@ export function PrivacyFab() {
           "pointer-events-auto flex size-12 items-center justify-center overflow-hidden rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 sm:size-11",
           open
             ? "bg-background text-foreground ring-1 ring-border"
-            : "ring-1 ring-emerald-900/15",
+            : "bg-transparent",
         )}
-        style={open ? undefined : { backgroundImage: FAB.gradient }}
       >
         {open ? (
           <X className="h-5 w-5" />
         ) : (
-          <NojorMarkSvg className="size-full p-1.5" title="" />
+          <NojorMarkSvg
+            className="size-12 drop-shadow-md sm:size-11"
+            title="নজর সহায়তা"
+          />
         )}
       </button>
     </div>
