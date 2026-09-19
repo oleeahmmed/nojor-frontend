@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description: "যাচাইকৃত অপরাধ-ভিডিও আর্কাইভ · নজর",
   applicationName: "নজর",
   icons: {
-    icon: [{ url: "/brand/nojor-mark.png", type: "image/png" }],
+    icon: [{ url: "/brand/nojor-mark.svg", type: "image/svg+xml" }],
     apple: [{ url: "/brand/nojor-mark.png" }],
   },
 };

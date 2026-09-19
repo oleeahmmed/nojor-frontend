@@ -407,7 +407,7 @@ html.dark[data-theme="nojor"] {
   color: transparent;
 }
 
-/* Soft brand mark pulse — visible but not noisy */
+/* Soft brand mark pulse — unused by default header mark */
 @keyframes brand-mark-breathe {
   0%,
   100% {

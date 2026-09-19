@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="¨œ°">
+  <defs>
+    <radialGradient id="nojRed" cx="42%" cy="36%" r="68%">
+      <stop offset="0%" stop-color="#ff5a52"/>
+      <stop offset="55%" stop-color="#e11d2e"/>
+      <stop offset="100%" stop-color="#b01020"/>
+    </radialGradient>
+    <radialGradient id="nojIris" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#0a7a55"/>
+      <stop offset="100%" stop-color="#004d36"/>
+    </radialGradient>
+    <linearGradient id="nojRoad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd24a"/>
+      <stop offset="100%" stop-color="#e11d2e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Red disc only  transparent outside -->
+  <circle cx="100" cy="100" r="92" fill="url(#nojRed)"/>
+
+  <!-- Eye -->
+  <ellipse cx="100" cy="78" rx="46" ry="28" fill="#f7f8f2" stroke="#00563a" stroke-width="5"/>
+  <circle cx="100" cy="78" r="20" fill="url(#nojIris)" stroke="#003d2a" stroke-width="1.5"/>
+  <circle cx="100" cy="78" r="20" fill="none" stroke="#003d2a" stroke-width="1" opacity="0.35"/>
+  <circle cx="100" cy="78" r="13" fill="none" stroke="#003d2a" stroke-width="1" opacity="0.3"/>
+  <circle cx="100" cy="78" r="9" fill="#0b0b0b"/>
+  <circle cx="95" cy="73" r="2.2" fill="#fff" opacity="0.85"/>
+  <text x="100" y="82" text-anchor="middle" font-size="9" font-weight="700" fill="#ffd24a" font-family="Noto Sans Bengali, Hind Siliguri, sans-serif">é¯¼</text>
+
+  <!-- Lashes -->
+  <path d="M138 62c8-6 14-8 18-8" fill="none" stroke="#00563a" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M140 72c9-2 15-2 20-1" fill="none" stroke="#00563a" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M136 92c8 5 14 8 19 9" fill="none" stroke="#00563a" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Road beam -->
+  <path d="M92 108 L108 108 L112 128 L88 128 Z" fill="url(#nojRoad)"/>
+  <circle cx="100" cy="112" r="1.6" fill="#ffe9a0"/>
+  <circle cx="100" cy="117" r="1.6" fill="#ffe9a0"/>
+  <circle cx="100" cy="122" r="1.6" fill="#ffe9a0"/>
+
+  <!-- Brand word -->
+  <text
+    x="100"
+    y="162"
+    text-anchor="middle"
+    font-size="36"
+    font-weight="800"
+    fill="#00563a"
+    stroke="#e8ece9"
+    stroke-width="1.2"
+    paint-order="stroke fill"
+    font-family="Noto Sans Bengali, Hind Siliguri, Vrinda, sans-serif"
+  >¨œ°</text>
+</svg>

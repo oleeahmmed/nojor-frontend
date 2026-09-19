@@ -2,7 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export const BRAND_MARK = "/brand/nojor-mark.png";
+/** Circular mark only (no green square) */
+export const BRAND_MARK = "/brand/nojor-mark.svg";
+export const BRAND_MARK_PNG = "/brand/nojor-mark.png";
 /** তদন্ত / official variant */
 export const BRAND_MARK_TODONTO = "/brand/nojor-mark-todonto.png";
 
@@ -11,33 +13,45 @@ export function BrandMark({
   size = 48,
   className,
   alt = "নজর",
-  animate = false,
 }: {
   variant?: "default" | "todonto";
   size?: number;
   className?: string;
   alt?: string;
-  animate?: boolean;
 }) {
-  const src = variant === "todonto" ? BRAND_MARK_TODONTO : BRAND_MARK;
+  if (variant === "todonto") {
+    return (
+      <Image
+        src={BRAND_MARK_TODONTO}
+        alt={alt}
+        width={size}
+        height={size}
+        className={cn(
+          "shrink-0 rounded-full object-cover ring-1 ring-black/10",
+          className,
+        )}
+        priority={size >= 28}
+      />
+    );
+  }
+
   return (
-    <Image
-      src={src}
+    <img
+      src={BRAND_MARK}
       alt={alt}
       width={size}
       height={size}
       className={cn(
-        "shrink-0 rounded-xl object-cover shadow-md ring-1 ring-black/10",
-        animate && "brand-mark-breathe",
+        "shrink-0 bg-transparent object-contain drop-shadow-sm",
         className,
       )}
-      priority={size >= 28}
+      decoding="async"
     />
   );
 }
 
 /**
- * নজর — বড় লোগো মার্ক (Tube লেবেল নেই)।
+ * নজর — লাল বৃত্ত লোগো (গ্রিন স্কোয়ার / অ্যানিমেশন নেই)।
  */
 export function BrandLogo({
   compact = false,
@@ -50,16 +64,15 @@ export function BrandLogo({
     <Link
       href="/"
       className={cn(
-        "group flex items-center rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group flex items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
       aria-label="নজর — হোমে যান"
     >
       <BrandMark
         size={compact ? 40 : 52}
-        animate
         className={cn(
-          "!size-10 shadow-md transition-transform duration-300 ease-out group-hover:scale-[1.06] sm:!size-12",
+          "!size-10 transition-transform duration-200 ease-out group-hover:scale-[1.04] sm:!size-12",
           !compact && "md:!size-[3.25rem]",
         )}
       />
