@@ -9,6 +9,7 @@ import { CreateModal } from "./create-modal";
 import { NotificationsModal } from "./notifications-modal";
 import { AreaPickerModal } from "./area-picker-modal";
 import { useApp } from "./providers";
+import { useStudioSession } from "@/hooks/use-studio-session";
 
 export function YtShell({
   children,
@@ -25,6 +26,7 @@ export function YtShell({
   const search = useSearchParams();
   const router = useRouter();
   const { areaPickerOpen, openAreaPicker, closeAreaPicker } = useApp();
+  const studioOk = useStudioSession();
   const view = search.get("view");
   const active = view || "home";
 
@@ -56,12 +58,18 @@ export function YtShell({
     }
   }
 
+  const openCreate = studioOk
+    ? () => {
+        setCreateOpen(true);
+      }
+    : undefined;
+
   return (
     <div className="fixed inset-0 z-0 flex h-[100dvh] w-full max-w-none flex-col overflow-hidden bg-background text-foreground">
       <YtHeader
         onMenu={() => setMenuOpen((v) => !v)}
         onOfficial={() => setOfficialOpen(true)}
-        onCreate={() => setCreateOpen(true)}
+        onCreate={openCreate}
         onNotifications={() => setNotifsOpen(true)}
       />
 
@@ -87,10 +95,14 @@ export function YtShell({
             setOfficialOpen(true);
             closeAfterNav();
           }}
-          onCreate={() => {
-            setCreateOpen(true);
-            closeAfterNav();
-          }}
+          onCreate={
+            openCreate
+              ? () => {
+                  openCreate();
+                  closeAfterNav();
+                }
+              : undefined
+          }
           onNavigate={closeAfterNav}
         />
 
@@ -100,7 +112,9 @@ export function YtShell({
       </div>
 
       <OfficialModal open={officialOpen} onClose={() => setOfficialOpen(false)} />
-      <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} />
+      {studioOk ? (
+        <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} />
+      ) : null}
       <NotificationsModal open={notifsOpen} onClose={() => setNotifsOpen(false)} />
       <AreaPickerModal open={areaPickerOpen} onClose={closeAreaPicker} />
     </div>

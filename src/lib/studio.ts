@@ -21,11 +21,21 @@ export function getStudioName(): string {
 function saveStudio(token: string, name: string) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(NAME_KEY, name);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("nojor-studio"));
+  }
 }
 
 export function clearStudio() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(NAME_KEY);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("nojor-studio"));
+  }
+}
+
+export function isStudioLoggedIn(): boolean {
+  return Boolean(getStudioToken());
 }
 
 export async function studioLogin(username: string, password: string) {

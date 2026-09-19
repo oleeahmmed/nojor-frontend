@@ -21,7 +21,7 @@ export function YtHeader({
 }: {
   onMenu: () => void;
   onOfficial: () => void;
-  onCreate: () => void;
+  onCreate?: () => void;
   onNotifications: () => void;
 }) {
   const { role } = useApp();
@@ -129,24 +129,28 @@ export function YtHeader({
         >
           <Search className="h-5 w-5" />
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="hidden h-9 rounded-full border-border px-3 sm:inline-flex"
-          onClick={onCreate}
-        >
-          <Plus className="h-4 w-4" />
-          Create
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-10 rounded-full sm:hidden"
-          onClick={onCreate}
-          aria-label="Create"
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
+        {onCreate ? (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden h-9 rounded-full border-border px-3 sm:inline-flex"
+              onClick={onCreate}
+            >
+              <Plus className="h-4 w-4" />
+              Create
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-10 rounded-full sm:hidden"
+              onClick={onCreate}
+              aria-label="Create"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          </>
+        ) : null}
 
         <ThemeSwitcher />
 
