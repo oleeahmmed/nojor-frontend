@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Pencil, Shield } from "lucide-react";
 import { CRIME_CATEGORIES } from "@/lib/categories";
+import { ACCUSED_PARTIES, type AccusedPartyKey } from "@/lib/parties";
 import { STATUS_META, normalizeStatus } from "@/lib/status";
 import type { ArchiveCase, LegalStatusKey } from "@/lib/types";
 import {
@@ -50,6 +51,9 @@ export function StaffEditPanel({
   const [thana, setThana] = useState(caseData.thana || "");
   const [village, setVillage] = useState(caseData.village || "");
   const [category, setCategory] = useState(caseData.crime_category || "");
+  const [party, setParty] = useState<AccusedPartyKey>(
+    (caseData.accused_party as AccusedPartyKey) || "",
+  );
   const [caseNumber, setCaseNumber] = useState(caseData.case_number || "");
   const [status, setStatus] = useState<LegalStatusKey>(
     normalizeStatus(caseData.status),
@@ -77,6 +81,7 @@ export function StaffEditPanel({
     setThana(caseData.thana || "");
     setVillage(caseData.village || "");
     setCategory(caseData.crime_category || "");
+    setParty((caseData.accused_party as AccusedPartyKey) || "");
     setCaseNumber(caseData.case_number || "");
     setStatus(normalizeStatus(caseData.status));
     setVerdict(caseData.verdict_summary || "");
@@ -102,6 +107,7 @@ export function StaffEditPanel({
         thana: thana.trim(),
         village: village.trim(),
         crime_category: category || undefined,
+        accused_party: party,
         case_number: caseNumber.trim(),
         legal_status: status,
         verdict_summary: verdict.trim(),
@@ -127,6 +133,7 @@ export function StaffEditPanel({
         thana: res.thana || thana,
         village: res.village || village,
         crime_category: res.crime_category || category,
+        accused_party: res.accused_party ?? party,
         case_number: res.case_number || caseNumber,
         status: nextStatus,
         verdict_summary: res.verdict_summary || verdict,
@@ -253,6 +260,22 @@ export function StaffEditPanel({
               </select>
             </label>
             <label className={labelCls}>
+              অভিযুক্ত দল
+              <select
+                className={field}
+                value={party}
+                onChange={(e) =>
+                  setParty(e.target.value as AccusedPartyKey)
+                }
+              >
+                {ACCUSED_PARTIES.map((p) => (
+                  <option key={p.key || "none"} value={p.key}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={labelCls}>
               আইনি অবস্থা
               <select
                 className={field}
@@ -266,6 +289,8 @@ export function StaffEditPanel({
                 ))}
               </select>
             </label>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <label className={labelCls}>
               ভিজিবিলিটি
               <select
@@ -278,16 +303,16 @@ export function StaffEditPanel({
                 <option value="hidden">Hidden</option>
               </select>
             </label>
+            <label className={labelCls}>
+              ঘটনার তারিখ
+              <input
+                type="date"
+                className={field}
+                value={incidentDate}
+                onChange={(e) => setIncidentDate(e.target.value)}
+              />
+            </label>
           </div>
-          <label className={labelCls}>
-            ঘটনার তারিখ
-            <input
-              type="date"
-              className={field}
-              value={incidentDate}
-              onChange={(e) => setIncidentDate(e.target.value)}
-            />
-          </label>
           <label className={labelCls}>
             রায় / নোট
             <textarea

@@ -2,22 +2,22 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ChevronDown, Clock, ExternalLink, FileText } from "lucide-react";
 import type { ArchiveCase } from "@/lib/types";
 import type { LegalStatusKey } from "@/lib/types";
 import { StatusChip } from "@/components/status-chip";
 import { useApp } from "@/components/providers";
 import { OfficialStatusPanel } from "@/components/official-status-panel";
 import { StaffEditPanel } from "@/components/staff-edit-panel";
+import { WatchDescTabs } from "@/components/watch-desc-tabs";
 import { EngagementBar } from "@/components/engagement-bar";
 import { CommentsPanel } from "@/components/comments-panel";
 import { VerdictPanel } from "@/components/verdict-panel";
 import { VideoEmbed } from "@/components/video-embed";
 import { formatCount } from "@/lib/engagement";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
 import { RelatedThumb } from "./related-thumb";
 import { useStudioSession } from "@/hooks/use-studio-session";
+import { partyLabel } from "@/lib/parties";
 
 /**
  * YouTube watch layout:
@@ -38,7 +38,6 @@ export function WatchView({
   const [commentsOpen, setCommentsOpen] = useState(true);
   const [commentCount, setCommentCount] = useState(c.comment_count);
   const [views, setViews] = useState(c.view_count);
-  const [descOpen, setDescOpen] = useState(false);
   const [status, setStatus] = useState(c.status);
   const [caseData, setCaseData] = useState(c);
 
@@ -46,7 +45,6 @@ export function WatchView({
     setCommentCount(c.comment_count);
     setViews(c.view_count);
     setCommentsOpen(true);
-    setDescOpen(false);
     setStatus(c.status);
     setCaseData(c);
   }, [c.slug, c.comment_count, c.view_count, c.status, c]);
@@ -90,6 +88,9 @@ export function WatchView({
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {formatCount(views)} views
+                    {partyLabel(caseData.accused_party)
+                      ? ` · ${partyLabel(caseData.accused_party)}`
+                      : ""}
                   </p>
                 </div>
                 <StatusChip status={status} />
@@ -136,112 +137,11 @@ export function WatchView({
               />
             )}
 
-            <button
-              type="button"
-              onClick={() => setDescOpen((v) => !v)}
-              className="mt-3 w-full rounded-xl bg-secondary/80 px-3.5 py-3 text-left transition hover:bg-secondary"
-            >
-              <p className="text-[13px] font-semibold">
-                {formatCount(views)} views · {c.date}
-              </p>
-              <p
-                className={cn(
-                  "mt-1.5 text-sm leading-relaxed text-foreground/90",
-                  !descOpen && "line-clamp-2",
-                )}
-              >
-                {c.summary}
-              </p>
-              <span className="mt-1 inline-flex items-center gap-0.5 text-[12px] font-semibold text-muted-foreground">
-                {descOpen ? "কম দেখুন" : "আরও দেখুন"}
-                <ChevronDown
-                  className={cn(
-                    "h-3.5 w-3.5 transition",
-                    descOpen && "rotate-180",
-                  )}
-                />
-              </span>
-
-              {descOpen ? (
-                <div className="mt-3 space-y-3 border-t border-border/50 pt-3">
-                  <div>
-                    <p className="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold">
-                      <FileText className="h-3.5 w-3.5" /> সূত্র
-                    </p>
-                    {c.sources.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        সূত্র যোগ হয়নি
-                      </p>
-                    ) : (
-                      c.sources.map((s, i) => {
-                        const href = s.url?.trim();
-                        const inner = (
-                          <>
-                            <span className="min-w-0">
-                              {s.t}{" "}
-                              <span className="text-muted-foreground">
-                                · {s.p}
-                              </span>
-                            </span>
-                            <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                          </>
-                        );
-                        return href ? (
-                          <a
-                            key={i}
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between gap-2 rounded-lg py-1 text-sm hover:underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {inner}
-                          </a>
-                        ) : (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between gap-2 py-1 text-sm text-muted-foreground"
-                          >
-                            {inner}
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                  <div>
-                    <p className="mb-2 text-[13px] font-semibold">
-                      আইনি অবস্থা
-                    </p>
-                    <div className="space-y-1.5">
-                      {c.timeline.map((tl, i) => (
-                        <div key={i} className="flex items-start gap-2 text-sm">
-                          <span
-                            className={cn(
-                              "mt-1.5 h-2 w-2 rounded-full",
-                              tl.done ? "bg-foreground" : "bg-border",
-                            )}
-                          />
-                          <div>
-                            <p
-                              className={
-                                tl.done
-                                  ? "font-medium"
-                                  : "text-muted-foreground"
-                              }
-                            >
-                              {tl.s}
-                            </p>
-                            <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" /> {tl.d}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </button>
+            <WatchDescTabs
+              key={`tabs-${caseData.slug}-${caseData.summary.slice(0, 12)}`}
+              c={caseData}
+              views={views}
+            />
 
             <CommentsPanel
               key={`comments-${c.slug}`}

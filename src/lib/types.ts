@@ -20,6 +20,7 @@ export type CaseListItem = {
   thana?: string;
   village?: string;
   crime_category?: string;
+  accused_party?: string;
   view_count?: number;
   like_count?: number;
   comment_count?: number;
@@ -46,6 +47,7 @@ export type CaseDetail = {
   village?: string;
   location_text?: string;
   crime_category?: string;
+  accused_party?: string;
   media: {
     provider: string;
     embed_id: string;
@@ -85,6 +87,7 @@ export type ArchiveCase = {
   thana?: string;
   village?: string;
   crime_category?: string;
+  accused_party?: string;
   date: string;
   dur: string;
   status: LegalStatusKey;

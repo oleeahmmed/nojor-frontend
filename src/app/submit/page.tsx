@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { submitCase } from "@/lib/api";
 import { CRIME_CATEGORIES } from "@/lib/categories";
+import { ACCUSED_PARTIES, type AccusedPartyKey } from "@/lib/parties";
 import { YtShell } from "@/components/yt-shell";
 import { LocationFields, EMPTY_LOCATION, type LocationValue } from "@/components/location-fields";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -21,6 +22,7 @@ function SubmitForm() {
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState<LocationValue>(EMPTY_LOCATION);
   const [category, setCategory] = useState("");
+  const [party, setParty] = useState<AccusedPartyKey>("");
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,6 +44,7 @@ function SubmitForm() {
         thana: location.thana,
         village: location.village,
         crime_category: category,
+        accused_party: party || undefined,
       });
       if (res?.ok) setOk(true);
       else setError(res?.error || "Failed");
@@ -93,6 +96,20 @@ function SubmitForm() {
                 {CRIME_CATEGORIES.filter((c) => c.key !== "all").map((c) => (
                   <option key={c.key} value={c.key}>
                     {c.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block space-y-1.5 text-sm font-semibold">
+              কোন দলের বিরুদ্ধে অভিযোগ
+              <select
+                value={party}
+                onChange={(e) => setParty(e.target.value as AccusedPartyKey)}
+                className={selectClass}
+              >
+                {ACCUSED_PARTIES.map((p) => (
+                  <option key={p.key || "none"} value={p.key}>
+                    {p.label}
                   </option>
                 ))}
               </select>

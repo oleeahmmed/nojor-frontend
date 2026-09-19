@@ -41,7 +41,7 @@ export function PrivacyFab() {
       className={cn(
         "pointer-events-none fixed right-3 z-30 flex flex-col items-end gap-2.5 sm:right-5 sm:gap-3",
         /* sit above mobile bottom nav */
-        "bottom-[calc(3.75rem+max(0.35rem,env(safe-area-inset-bottom)))] md:bottom-[max(1rem,env(safe-area-inset-bottom))]",
+        "bottom-[calc(5.25rem+max(0.5rem,env(safe-area-inset-bottom)))] md:bottom-[max(1rem,env(safe-area-inset-bottom))]",
       )}
     >
       {open ? (

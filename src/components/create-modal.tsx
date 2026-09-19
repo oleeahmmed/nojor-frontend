@@ -28,6 +28,7 @@ import Link from "next/link";
 import { submitCase } from "@/lib/api";
 import { COMMUNITY } from "@/lib/community";
 import { CRIME_CATEGORIES } from "@/lib/categories";
+import { ACCUSED_PARTIES, type AccusedPartyKey } from "@/lib/parties";
 import { captureVideoFrame } from "@/lib/thumbnails";
 import {
   clearStudio,
@@ -37,6 +38,7 @@ import {
   studioLogout,
   studioMe,
   uploadVideo,
+  staffEditCase,
 } from "@/lib/studio";
 import {
   LocationFields,
@@ -111,6 +113,7 @@ export function CreateModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [party, setParty] = useState<AccusedPartyKey>("");
   const [location, setLocation] = useState<LocationValue>(EMPTY_LOCATION);
 
   // studio (team) state
@@ -154,6 +157,7 @@ export function CreateModal({
     setTitle("");
     setDescription("");
     setCategory("");
+    setParty("");
     setLocation(EMPTY_LOCATION);
     setLoginUser("");
     setLoginPass("");
@@ -318,6 +322,7 @@ export function CreateModal({
         thana: location.thana,
         village: location.village,
         crime_category: category,
+        accused_party: party || undefined,
       });
       if (res?.ok) setOk(true);
       else setError(res?.error || "জমা ব্যর্থ হয়েছে।");
@@ -353,6 +358,13 @@ export function CreateModal({
     );
     setLoading(false);
     if (res.ok) {
+      if (res.slug && party) {
+        try {
+          await staffEditCase(res.slug, { accused_party: party });
+        } catch {
+          /* party optional — video already published */
+        }
+      }
       setOkSlug(res.slug || "");
       setOk(true);
     } else {
@@ -877,6 +889,36 @@ export function CreateModal({
                           },
                         )}
                       </div>
+                      <div className="mt-5 mb-3 flex items-center gap-2 text-[13px] font-medium">
+                        কোন দলের বিরুদ্ধে অভিযোগ
+                        <span className="font-normal text-muted-foreground">
+                          — ঐচ্ছিক
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {ACCUSED_PARTIES.filter((p) => p.key !== "").map(
+                          (p) => {
+                            const on = party === p.key;
+                            return (
+                              <button
+                                key={p.key}
+                                type="button"
+                                onClick={() =>
+                                  setParty(on ? "" : (p.key as AccusedPartyKey))
+                                }
+                                className={cn(
+                                  "h-9 rounded-full border px-3.5 text-[12.5px] font-medium transition",
+                                  on
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-muted/60",
+                                )}
+                              >
+                                {p.label}
+                              </button>
+                            );
+                          },
+                        )}
+                      </div>
                     </div>
                   ) : step === 2 ? (
                     /* ── ধাপ ৩: এলাকা ── */
@@ -909,6 +951,14 @@ export function CreateModal({
                         k="ক্যাটাগরি"
                         v={categoryLabel || "দেওয়া হয়নি"}
                         muted={!categoryLabel}
+                      />
+                      <ReviewRow
+                        k="অভিযুক্ত দল"
+                        v={
+                          ACCUSED_PARTIES.find((p) => p.key === party)?.label ||
+                          "প্রযোজ্য নয়"
+                        }
+                        muted={!party}
                       />
                       <ReviewRow
                         k="এলাকা"
@@ -1127,6 +1177,22 @@ export function CreateModal({
                           </option>
                         ),
                       )}
+                    </FormSelect>
+                  </div>
+
+                  <div>
+                    <label className={label}>কোন দলের বিরুদ্ধে অভিযোগ</label>
+                    <FormSelect
+                      value={party}
+                      onChange={(e) =>
+                        setParty(e.target.value as AccusedPartyKey)
+                      }
+                    >
+                      {ACCUSED_PARTIES.map((p) => (
+                        <option key={p.key || "none"} value={p.key}>
+                          {p.label}
+                        </option>
+                      ))}
                     </FormSelect>
                   </div>
 
