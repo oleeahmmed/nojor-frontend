@@ -24,6 +24,12 @@ export const COMMUNITY = {
     label: "অফিসিয়াল অ্যাক্সেস",
     subject: "অফিসিয়াল অ্যাক্সেস অনুরোধ — নজর তদন্ত",
   },
+  /** নজর টিম — সরানো / সংশোধন (লগইন ইউজার ডিলিট করতে পারে না) */
+  team: {
+    email: "tips.nojor@gmail.com",
+    label: "নজর টিম",
+    subject: "নজর টিম — ভিডিও সরানো বা সংশোধন অনুরোধ",
+  },
   /** নন-প্রফিট সহায়তা / ডোনেশন */
   donation: {
     email: "nojorhelp@gmail.com",

@@ -443,7 +443,7 @@ export function CreateModal({
               <p className="truncate text-[12px] text-muted-foreground">
                 {isUploadTab
                   ? loggedIn
-                    ? `টিম অ্যাকাউন্ট · ${staffName}`
+                    ? `টিম · ${staffName} · শুধু পোস্ট (সরানো ইমেইলে)`
                     : "শুধু নজর টিমের জন্য"
                   : "পাবলিক লিংক · যাচাইয়ের পর প্রকাশ"}
               </p>
@@ -546,6 +546,17 @@ export function CreateModal({
                   <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
                     সরাসরি ভিডিও আপলোড শুধু নজর টিমের অনুমোদিত অ্যাকাউন্ট থেকে
                     করা যায়।
+                  </p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                    ইউজারনেম/পাসওয়ার্ড দিয়ে লগইন করে ভিডিও পোস্ট করতে পারবেন।
+                    কিছু সরাতে হলে{" "}
+                    <a
+                      href={`mailto:${COMMUNITY.team.email}?subject=${encodeURIComponent(COMMUNITY.team.subject)}`}
+                      className="font-medium text-primary underline-offset-2 hover:underline"
+                    >
+                      {COMMUNITY.team.email}
+                    </a>{" "}
+                    এ নজর টিমকে লিখুন — নিজে ডিলিট করা যায় না।
                   </p>
                 </div>
                 <div className="space-y-3.5">
@@ -656,6 +667,15 @@ export function CreateModal({
                 </Button>
                 <p className="mt-4 text-[11px] text-muted-foreground">
                   MP4 · WebM · MOV — সর্বোচ্চ 512MB
+                </p>
+                <p className="mt-3 max-w-xs text-center text-[11px] leading-relaxed text-muted-foreground">
+                  পোস্ট করতে পারবেন; সরাতে হলে{" "}
+                  <a
+                    href={`mailto:${COMMUNITY.team.email}?subject=${encodeURIComponent(COMMUNITY.team.subject)}`}
+                    className="font-medium text-primary underline-offset-2 hover:underline"
+                  >
+                    {COMMUNITY.team.email}
+                  </a>
                 </p>
                 {error ? (
                   <p

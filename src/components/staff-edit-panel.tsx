@@ -62,7 +62,7 @@ export function StaffEditPanel({
   );
   const [verdict, setVerdict] = useState(caseData.verdict_summary || "");
   const [incidentDate, setIncidentDate] = useState("");
-  const [visibility, setVisibility] = useState("published");
+  // Team users cannot hide/delete — visibility stays published
 
   useEffect(() => {
     const sync = () => {
@@ -115,7 +115,7 @@ export function StaffEditPanel({
         case_number: caseNumber.trim(),
         legal_status: status,
         verdict_summary: verdict.trim(),
-        visibility,
+        visibility: "published",
         incident_date: incidentDate || null,
         note: "frontend staff edit",
       });
@@ -248,7 +248,7 @@ export function StaffEditPanel({
               />
             </label>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <label className={labelCls}>
               ক্যাটাগরি
               <select
@@ -280,6 +280,8 @@ export function StaffEditPanel({
                 ))}
               </select>
             </label>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <label className={labelCls}>
               আইনি অবস্থা
               <select
@@ -294,20 +296,6 @@ export function StaffEditPanel({
                 ))}
               </select>
             </label>
-          </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label className={labelCls}>
-              ভিজিবিলিটি
-              <select
-                className={field}
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value)}
-              >
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-                <option value="hidden">Hidden</option>
-              </select>
-            </label>
             <label className={labelCls}>
               ঘটনার তারিখ
               <input
@@ -318,6 +306,16 @@ export function StaffEditPanel({
               />
             </label>
           </div>
+          <p className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+            ভিডিও সরানো বা লুকানো যায় না। দরকার হলে{" "}
+            <a
+              href="mailto:tips.nojor@gmail.com?subject=%E0%A6%A8%E0%A6%9C%E0%A6%B0%20%E0%A6%9F%E0%A6%BF%E0%A6%AE%20%E2%80%94%20%E0%A6%AD%E0%A6%BF%E0%A6%A1%E0%A6%BF%E0%A6%93%20%E0%A6%B8%E0%A6%B0%E0%A6%BE%E0%A6%A8%E0%A7%8B"
+              className="font-medium text-primary underline-offset-2 hover:underline"
+            >
+              tips.nojor@gmail.com
+            </a>{" "}
+            এ নজর টিমকে ইমেইল করুন।
+          </p>
           <label className={labelCls}>
             হ্যাশট্যাগ (সার্চের জন্য)
             <input
