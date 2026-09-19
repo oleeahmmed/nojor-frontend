@@ -8,14 +8,16 @@ export const BRAND_MARK_TODONTO = "/brand/nojor-mark-todonto.png";
 
 export function BrandMark({
   variant = "default",
-  size = 32,
+  size = 48,
   className,
   alt = "নজর",
+  animate = false,
 }: {
   variant?: "default" | "todonto";
   size?: number;
   className?: string;
   alt?: string;
+  animate?: boolean;
 }) {
   const src = variant === "todonto" ? BRAND_MARK_TODONTO : BRAND_MARK;
   return (
@@ -25,7 +27,8 @@ export function BrandMark({
       width={size}
       height={size}
       className={cn(
-        "shrink-0 rounded-lg object-cover shadow-sm ring-1 ring-black/10",
+        "shrink-0 rounded-xl object-cover shadow-md ring-1 ring-black/10",
+        animate && "brand-mark-breathe",
         className,
       )}
       priority={size >= 28}
@@ -34,7 +37,7 @@ export function BrandMark({
 }
 
 /**
- * নজর Tube — লোগো মার্ক + Tube লেবেল।
+ * নজর — বড় লোগো মার্ক (Tube লেবেল নেই)।
  */
 export function BrandLogo({
   compact = false,
@@ -47,20 +50,19 @@ export function BrandLogo({
     <Link
       href="/"
       className={cn(
-        "group flex items-center gap-1.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-2",
+        "group flex items-center rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
-      aria-label="নজর Tube — হোমে যান"
+      aria-label="নজর — হোমে যান"
     >
       <BrandMark
-        size={36}
-        className="!size-8 transition-transform duration-200 group-hover:scale-[1.04] sm:!size-9"
+        size={compact ? 40 : 52}
+        animate
+        className={cn(
+          "!size-10 shadow-md transition-transform duration-300 ease-out group-hover:scale-[1.06] sm:!size-12",
+          !compact && "md:!size-[3.25rem]",
+        )}
       />
-      {!compact && (
-        <span className="hidden text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground md:inline">
-          Tube
-        </span>
-      )}
     </Link>
   );
 }

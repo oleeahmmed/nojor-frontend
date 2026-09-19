@@ -21,7 +21,7 @@ const notoBn = Noto_Sans_Bengali({
 
 export const metadata: Metadata = {
   title: "নজর · Nojor",
-  description: "যাচাইকৃত অপরাধ-ভিডিও আর্কাইভ · নজর Tube",
+  description: "যাচাইকৃত অপরাধ-ভিডিও আর্কাইভ · নজর",
   applicationName: "নজর",
   icons: {
     icon: [{ url: "/brand/nojor-mark.png", type: "image/png" }],

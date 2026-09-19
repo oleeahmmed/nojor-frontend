@@ -406,6 +406,29 @@ html.dark[data-theme="nojor"] {
   background-clip: text;
   color: transparent;
 }
+
+/* Soft brand mark pulse — visible but not noisy */
+@keyframes brand-mark-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 2px 4px rgb(5 150 105 / 0.2));
+  }
+  50% {
+    transform: scale(1.045);
+    filter: drop-shadow(0 4px 12px rgb(5 150 105 / 0.38));
+  }
+}
+.brand-mark-breathe {
+  animation: brand-mark-breathe 3.2s ease-in-out infinite;
+  will-change: transform, filter;
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark-breathe {
+    animation: none;
+  }
+}
+
 .glass {
   background-color: color-mix(in srgb, var(--card) 72%, transparent);
   backdrop-filter: blur(14px) saturate(160%);

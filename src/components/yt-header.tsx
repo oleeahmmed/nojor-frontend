@@ -66,7 +66,7 @@ export function YtHeader({
   }
 
   return (
-    <header className="z-40 flex h-12 w-full shrink-0 items-center gap-1 border-b border-border/60 bg-background px-1.5 sm:h-14 sm:gap-2 sm:px-3">
+    <header className="z-40 flex h-14 w-full shrink-0 items-center gap-1 border-b border-border/60 bg-background px-1.5 sm:h-16 sm:gap-2 sm:px-3">
       <div className="flex shrink-0 items-center gap-0">
         <Button
           variant="ghost"
