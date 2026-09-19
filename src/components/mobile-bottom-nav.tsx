@@ -10,7 +10,6 @@ import {
   UserRound,
 } from "lucide-react";
 import { useState } from "react";
-import { useIdentity } from "./identity-provider";
 import { useApp } from "./providers";
 import { ThemeSwitcher } from "./theme-switcher";
 import { cn } from "@/lib/utils";
@@ -28,21 +27,24 @@ import {
 export function MobileBottomNav({
   onCreate,
   onOfficial,
+  onProfile,
   onArea,
+  studioLoggedIn = false,
 }: {
   onCreate?: () => void;
   onOfficial: () => void;
+  onProfile: () => void;
   onArea: () => void;
+  studioLoggedIn?: boolean;
 }) {
   const pathname = usePathname();
   const search = useSearchParams();
   const router = useRouter();
-  const { openProfile } = useIdentity();
   const { role } = useApp();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const homeOn = pathname === "/" && !search.get("view");
-  const profileOn = role === "official";
+  const profileOn = studioLoggedIn || role === "official";
 
   const item =
     "flex h-full w-full items-center justify-center text-muted-foreground outline-none transition hover:text-foreground";
@@ -80,14 +82,15 @@ export function MobileBottomNav({
 
         <button
           type="button"
-          onClick={() => {
-            if (role === "official") onOfficial();
-            else openProfile();
-          }}
+          onClick={onProfile}
           className={cn(item, profileOn && "text-foreground")}
           aria-label="Profile"
         >
-          <UserRound className="h-6 w-6" strokeWidth={1.75} />
+          <UserRound
+            className="h-6 w-6"
+            strokeWidth={profileOn ? 2.25 : 1.75}
+            fill={profileOn ? "currentColor" : "none"}
+          />
         </button>
 
         <DropdownMenu open={moreOpen} onOpenChange={setMoreOpen}>

@@ -7,6 +7,7 @@ import { BrandLogo } from "./brand-logo";
 import { ThemeSwitcher } from "./theme-switcher";
 import { useIdentity } from "./identity-provider";
 import { useApp } from "./providers";
+import { useStudioSession } from "@/hooks/use-studio-session";
 import { HomeDistrictFilter } from "./home-district-filter";
 import { SmartSearchPanel } from "./smart-search-panel";
 import { Button } from "@/components/ui/button";
@@ -15,21 +16,32 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function YtHeader({
   onMenu,
-  onOfficial,
+  onProfile,
   onCreate,
   onNotifications,
 }: {
   onMenu: () => void;
-  onOfficial: () => void;
+  onProfile: () => void;
   onCreate?: () => void;
   onNotifications: () => void;
 }) {
   const { role } = useApp();
-  const { name, openProfile } = useIdentity();
+  const { name } = useIdentity();
+  const { loggedIn: studioOk, name: studioName } = useStudioSession();
   const router = useRouter();
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") || "");
   const [mobileSearch, setMobileSearch] = useState(false);
+  const avatarLabel = studioOk
+    ? studioName || "টিম"
+    : role === "official"
+      ? "কর্মকর্তা মোড"
+      : name || "আপনার নাম দিন";
+  const avatarLetter = studioOk
+    ? (studioName || "ট").slice(0, 1)
+    : role === "official"
+      ? "অ"
+      : (name || "ন").slice(0, 1);
 
   useEffect(() => {
     setQ(params.get("q") || "");
@@ -162,25 +174,21 @@ export function YtHeader({
         {/* Profile — desktop only (mobile: bottom bar) */}
         <button
           type="button"
-          onClick={role === "official" ? onOfficial : openProfile}
+          onClick={onProfile}
           className="mx-0.5 hidden rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring md:inline-flex sm:mx-0"
-          title={
-            role === "official"
-              ? "কর্মকর্তা মোড"
-              : name
-                ? name
-                : "আপনার নাম দিন"
-          }
+          title={avatarLabel}
         >
           <Avatar size="sm">
             <AvatarFallback
               className={
-                role === "official"
-                  ? "bg-emerald-600 text-[11px] font-bold text-white"
-                  : "bg-primary text-[11px] font-bold text-primary-foreground"
+                studioOk
+                  ? "bg-red-600 text-[11px] font-bold text-white"
+                  : role === "official"
+                    ? "bg-emerald-600 text-[11px] font-bold text-white"
+                    : "bg-primary text-[11px] font-bold text-primary-foreground"
               }
             >
-              {role === "official" ? "অ" : (name || "ন").slice(0, 1)}
+              {avatarLetter}
             </AvatarFallback>
           </Avatar>
         </button>

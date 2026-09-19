@@ -35,7 +35,7 @@ export function WatchView({
   related: ArchiveCase[];
 }) {
   const { role } = useApp();
-  const studioOk = useStudioSession();
+  const { loggedIn: studioOk } = useStudioSession();
   const [commentsOpen, setCommentsOpen] = useState(true);
   const [commentCount, setCommentCount] = useState(c.comment_count);
   const [views, setViews] = useState(c.view_count);
@@ -140,9 +140,13 @@ export function WatchView({
             )}
 
             <WatchDescTabs
-              key={`tabs-${caseData.slug}-${caseData.summary.slice(0, 12)}`}
+              key={`tabs-${caseData.slug}`}
               c={caseData}
               views={views}
+              onUpdated={(patch) => {
+                setCaseData((prev) => ({ ...prev, ...patch }));
+                if (patch.status) setStatus(patch.status);
+              }}
             />
 
             <CommentsPanel

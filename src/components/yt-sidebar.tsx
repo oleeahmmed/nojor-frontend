@@ -153,7 +153,7 @@ function SidebarBody({
 }) {
   const { role, district, homeDistrict, areaPickerOpen, openAreaPicker } =
     useApp();
-  const studioOk = useStudioSession();
+  const { loggedIn: studioOk } = useStudioSession();
 
   return (
     <>

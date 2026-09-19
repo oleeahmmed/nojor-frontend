@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { isStudioLoggedIn } from "@/lib/studio";
+import { getStudioName, isStudioLoggedIn } from "@/lib/studio";
 
-/** Studio/staff session — Create button gating. */
+/** Studio/staff session — Create button gating + profile. */
 export function useStudioSession() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [name, setName] = useState("");
 
   useEffect(() => {
-    const sync = () => setLoggedIn(isStudioLoggedIn());
+    const sync = () => {
+      setLoggedIn(isStudioLoggedIn());
+      setName(getStudioName());
+    };
     sync();
     window.addEventListener("nojor-studio", sync);
     window.addEventListener("storage", sync);
@@ -20,5 +24,5 @@ export function useStudioSession() {
     };
   }, []);
 
-  return loggedIn;
+  return { loggedIn, name };
 }

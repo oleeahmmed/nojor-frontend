@@ -134,6 +134,7 @@ export type CaseStaffEditBody = {
   visibility?: string;
   incident_date?: string | null;
   verdict_date?: string | null;
+  sources?: { title: string; publisher?: string; url?: string }[];
   note?: string;
 };
 
@@ -172,6 +173,7 @@ export async function staffEditCase(slug: string, body: CaseStaffEditBody) {
     visibility?: string;
     incident_date?: string | null;
     verdict_date?: string | null;
+    sources?: { title: string; url?: string; publisher?: string }[];
   }>;
 }
 
