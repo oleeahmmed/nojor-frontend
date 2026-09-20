@@ -7,6 +7,7 @@ import {
   Home,
   MoreHorizontal,
   Plus,
+  TrendingUp,
   UserRound,
 } from "lucide-react";
 import { useState } from "react";
@@ -64,17 +65,30 @@ export function MobileBottomNav({
           />
         </Link>
 
-        <button
-          type="button"
-          onClick={() => {
-            if (onCreate) onCreate();
-            else router.push("/?studio=1");
-          }}
-          className={item}
-          aria-label="Create"
-        >
-          <Plus className="h-7 w-7" strokeWidth={1.75} />
-        </button>
+        {studioLoggedIn ? (
+          <button
+            type="button"
+            onClick={() => {
+              if (onCreate) onCreate();
+              else router.push("/?create=1");
+            }}
+            className={item}
+            aria-label="Create"
+          >
+            <Plus className="h-7 w-7" strokeWidth={1.75} />
+          </button>
+        ) : (
+          <Link
+            href="/?view=viral"
+            aria-label="Viral"
+            className={cn(
+              item,
+              pathname === "/" && search.get("view") === "viral" && "text-foreground",
+            )}
+          >
+            <TrendingUp className="h-6 w-6" strokeWidth={1.75} />
+          </Link>
+        )}
 
         <button
           type="button"

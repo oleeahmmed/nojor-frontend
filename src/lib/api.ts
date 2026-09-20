@@ -44,7 +44,7 @@ function listToArchive(item: CaseListItem): ArchiveCase {
     dislike_count: 0,
     comment_count: item.comment_count ?? 0,
     share_count: 0,
-    trend: Boolean(item.is_viral) || view_count >= 10_000,
+    trend: Boolean(item.is_viral) || view_count >= 100,
     summary: "এই কেসের বিস্তারিত বিবরণ খুলুন।",
     timeline: [
       { s: "রিপোর্ট হয়েছে", d: formatDate(item.incident_date), done: true },
@@ -109,7 +109,7 @@ function detailToArchive(d: CaseDetail): ArchiveCase {
     dislike_count: d.dislike_count ?? 0,
     comment_count: d.comment_count ?? 0,
     share_count: d.share_count ?? 0,
-    trend: Boolean(d.is_viral) || view_count >= 10_000,
+    trend: Boolean(d.is_viral) || view_count >= 100,
     official: history.some((h) => h.source),
     summary: d.summary,
     timeline,

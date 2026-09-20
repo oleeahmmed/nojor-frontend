@@ -120,8 +120,8 @@ export function YtHeader({
       </form>
 
       <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
-        {/* Desktop create */}
-        {onCreate ? (
+        {/* Create — only when team already logged in (no public login CTA) */}
+        {onCreate && studioOk ? (
           <Button
             variant="outline"
             size="sm"

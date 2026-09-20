@@ -6,11 +6,9 @@ import {
   Gavel,
   Home,
   MapPin,
-  Plus,
   TrendingUp,
 } from "lucide-react";
 import { useApp } from "./providers";
-import { useStudioSession } from "@/hooks/use-studio-session";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -141,15 +139,12 @@ function NavItems({
 
 function SidebarBody({
   active,
-  onCreate,
   onNavigate,
 }: {
   active: string;
-  onCreate?: () => void;
   onNavigate?: () => void;
 }) {
   const { homeDistrict, areaPickerOpen, openAreaPicker } = useApp();
-  const { loggedIn: studioOk } = useStudioSession();
 
   return (
     <>
@@ -163,24 +158,7 @@ function SidebarBody({
         />
       </nav>
       <Separator className="my-3" />
-      {onCreate ? (
-        <button
-          type="button"
-          onClick={onCreate}
-          className="mb-0.5 flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/70"
-        >
-          <Plus className="h-5 w-5 text-primary" />
-          <span className="min-w-0">
-            <span className="block font-medium">
-              {studioOk ? "Create" : "টিম লগইন"}
-            </span>
-            <span className="block truncate text-xs text-muted-foreground">
-              {studioOk ? "ভিডিও আপলোড" : "Admin / staff"}
-            </span>
-          </span>
-        </button>
-      ) : null}
-      <div className="mt-6 space-y-2.5 px-3 text-xs leading-relaxed text-muted-foreground">
+      <div className="mt-2 space-y-2.5 px-3 text-xs leading-relaxed text-muted-foreground">
         <Link href="/about" className="block hover:text-foreground">
           আমাদের সম্পর্কে
         </Link>
@@ -200,12 +178,12 @@ export function YtSidebar({
   open,
   mode = "dock",
   active,
-  onCreate,
   onNavigate,
 }: {
   open: boolean;
   mode?: "dock" | "overlay";
   active: string;
+  /** @deprecated Create/login removed from public sidebar */
   onCreate?: () => void;
   onNavigate?: () => void;
 }) {
@@ -220,11 +198,7 @@ export function YtSidebar({
           open ? "translate-x-0" : "pointer-events-none -translate-x-full",
         )}
       >
-        <SidebarBody
-          active={active}
-          onCreate={onCreate}
-          onNavigate={onNavigate}
-        />
+        <SidebarBody active={active} onNavigate={onNavigate} />
       </aside>
     );
   }
@@ -238,11 +212,7 @@ export function YtSidebar({
         )}
       >
         {open ? (
-          <SidebarBody
-            active={active}
-            onCreate={onCreate}
-            onNavigate={onNavigate}
-          />
+          <SidebarBody active={active} onNavigate={onNavigate} />
         ) : (
           <NavItems
             active={active}
@@ -262,11 +232,7 @@ export function YtSidebar({
           open ? "translate-x-0" : "pointer-events-none -translate-x-full",
         )}
       >
-        <SidebarBody
-          active={active}
-          onCreate={onCreate}
-          onNavigate={onNavigate}
-        />
+        <SidebarBody active={active} onNavigate={onNavigate} />
       </aside>
     </>
   );

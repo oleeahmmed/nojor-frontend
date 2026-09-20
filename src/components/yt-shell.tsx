@@ -106,10 +106,6 @@ export function YtShell({
           open={menuOpen}
           mode={collapseSidebar ? "overlay" : "dock"}
           active={active}
-          onCreate={() => {
-            openCreate();
-            closeAfterNav();
-          }}
           onNavigate={closeAfterNav}
         />
 

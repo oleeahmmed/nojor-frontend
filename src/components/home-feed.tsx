@@ -35,7 +35,10 @@ export function HomeFeed({
     if (activeDistrict && !params.get("district")) {
       list = list.filter((c) => c.district === activeDistrict);
     }
-    if (view === "viral") list = list.filter((c) => c.trend);
+    if (view === "viral") {
+      // API already sorted by views; show popular clips (don't require 10k flag)
+      list = [...list].sort((a, b) => b.view_count - a.view_count);
+    }
     if (view === "trial")
       list = list.filter((c) => normalizeStatus(c.status) === "trial_ongoing");
     if (view === "noaction")
