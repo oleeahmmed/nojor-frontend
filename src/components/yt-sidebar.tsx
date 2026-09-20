@@ -2,15 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  AlertTriangle,
-  Gavel,
-  Home,
-  Info,
-  MapPin,
-  TrendingUp,
-} from "lucide-react";
-import { useApp } from "./providers";
+import { Home, Info, TrendingUp } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -23,37 +15,16 @@ const ITEMS = [
     short: "Viral",
     icon: TrendingUp,
   },
-  {
-    key: "trial",
-    href: "/?view=trial",
-    label: "বিচারাধীন",
-    short: "বিচার",
-    icon: Gavel,
-  },
-  {
-    key: "noaction",
-    href: "/?view=noaction",
-    label: "বিচার হয়নি",
-    short: "অমীমাংসিত",
-    icon: AlertTriangle,
-  },
-  { key: "area", href: "", label: "এলাকা", short: "এলাকা", icon: MapPin },
-];
+] as const;
 
 function NavItems({
   active,
   compact,
   onNavigate,
-  openAreaPicker,
-  homeDistrict,
-  areaPickerOpen,
 }: {
   active: string;
   compact?: boolean;
   onNavigate?: () => void;
-  openAreaPicker: () => void;
-  homeDistrict: string;
-  areaPickerOpen: boolean;
 }) {
   const pathname = usePathname();
   const infoOn =
@@ -65,33 +36,17 @@ function NavItems({
     <>
       {ITEMS.map((item) => {
         const Icon = item.icon;
-        const on =
-          item.key === "area"
-            ? areaPickerOpen || !!homeDistrict
-            : active === item.key;
-
+        const on = active === item.key;
         if (compact) {
-          const className = cn(
-            "flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-3 text-[10px] leading-tight text-foreground transition-colors",
-            on ? "bg-muted font-medium" : "hover:bg-muted/70",
-          );
-          if (item.key === "area") {
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={openAreaPicker}
-                className={className}
-              >
-                <Icon className="h-5 w-5" strokeWidth={on ? 2.4 : 1.9} />
-                <span className="max-w-full truncate text-center leading-tight">
-                  {homeDistrict || item.short}
-                </span>
-              </button>
-            );
-          }
           return (
-            <Link key={item.key} href={item.href} className={className}>
+            <Link
+              key={item.key}
+              href={item.href}
+              className={cn(
+                "flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-3 text-[10px] leading-tight text-foreground transition-colors",
+                on ? "bg-muted font-medium" : "hover:bg-muted/70",
+              )}
+            >
               <Icon className="h-5 w-5" strokeWidth={on ? 2.4 : 1.9} />
               <span className="max-w-full truncate text-center leading-tight">
                 {item.short}
@@ -99,42 +54,17 @@ function NavItems({
             </Link>
           );
         }
-
-        const className = cn(
-          "flex w-full items-center gap-5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
-          on
-            ? "bg-muted font-semibold text-foreground"
-            : "font-normal text-foreground/90 hover:bg-muted/70",
-        );
-        if (item.key === "area") {
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => {
-                openAreaPicker();
-                onNavigate?.();
-              }}
-              className={className}
-            >
-              <Icon className="h-5 w-5 shrink-0" strokeWidth={on ? 2.4 : 1.9} />
-              <span className="min-w-0">
-                <span className="block">{item.label}</span>
-                {homeDistrict ? (
-                  <span className="block truncate text-xs font-normal text-muted-foreground">
-                    {homeDistrict}
-                  </span>
-                ) : null}
-              </span>
-            </button>
-          );
-        }
         return (
           <Link
             key={item.key}
             href={item.href}
             onClick={onNavigate}
-            className={className}
+            className={cn(
+              "flex w-full items-center gap-5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+              on
+                ? "bg-muted font-semibold text-foreground"
+                : "font-normal text-foreground/90 hover:bg-muted/70",
+            )}
           >
             <Icon className="h-5 w-5 shrink-0" strokeWidth={on ? 2.4 : 1.9} />
             {item.label}
@@ -142,7 +72,6 @@ function NavItems({
         );
       })}
 
-      {/* One info entry → /about (page has tabs to verification/corrections) */}
       {compact ? (
         <Link
           href="/about"
@@ -182,18 +111,10 @@ function SidebarBody({
   active: string;
   onNavigate?: () => void;
 }) {
-  const { homeDistrict, areaPickerOpen, openAreaPicker } = useApp();
-
   return (
     <>
       <nav className="space-y-0.5">
-        <NavItems
-          active={active}
-          onNavigate={onNavigate}
-          openAreaPicker={openAreaPicker}
-          homeDistrict={homeDistrict}
-          areaPickerOpen={areaPickerOpen}
-        />
+        <NavItems active={active} onNavigate={onNavigate} />
       </nav>
       <Separator className="my-3" />
       <p className="px-3 text-[11px] text-muted-foreground">© Nojor</p>
@@ -210,12 +131,9 @@ export function YtSidebar({
   open: boolean;
   mode?: "dock" | "overlay";
   active: string;
-  /** @deprecated */
   onCreate?: () => void;
   onNavigate?: () => void;
 }) {
-  const { homeDistrict, areaPickerOpen, openAreaPicker } = useApp();
-
   if (mode === "overlay") {
     return (
       <aside
@@ -241,14 +159,7 @@ export function YtSidebar({
         {open ? (
           <SidebarBody active={active} onNavigate={onNavigate} />
         ) : (
-          <NavItems
-            active={active}
-            compact
-            onNavigate={onNavigate}
-            openAreaPicker={openAreaPicker}
-            homeDistrict={homeDistrict}
-            areaPickerOpen={areaPickerOpen}
-          />
+          <NavItems active={active} compact onNavigate={onNavigate} />
         )}
       </aside>
 
