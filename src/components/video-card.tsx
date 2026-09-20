@@ -38,7 +38,7 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
       href={`/cases/${c.slug}`}
       className="group flex w-full min-w-0 flex-col active:opacity-90"
     >
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-player ring-1 ring-black/5 sm:rounded-xl">
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-player ring-1 ring-black/5 sm:rounded-[12px]">
         {failed || !src ? (
           <div className="absolute inset-0" style={{ background: tone }} />
         ) : (
@@ -61,29 +61,29 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-80" />
 
         <div className="absolute inset-0 hidden items-center justify-center opacity-0 transition duration-200 group-hover:opacity-100 sm:flex">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
             <Play className="ml-0.5 h-5 w-5 fill-current" />
           </span>
         </div>
 
-        <div className="absolute left-1.5 top-1.5 sm:left-2 sm:top-2">
+        <div className="absolute left-2 top-2">
           <StatusChip status={c.status} />
         </div>
         {c.dur && c.dur !== "—" ? (
-          <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/80 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-white sm:bottom-2 sm:right-2 sm:text-[11px]">
+          <span className="absolute bottom-2 right-2 rounded-md bg-black/80 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-white sm:text-[12px]">
             {c.dur}
           </span>
         ) : null}
       </div>
 
-      <div className="mt-2.5 flex gap-2.5 sm:mt-3 sm:gap-3">
+      <div className="mt-3 flex gap-3">
         <PublisherAvatar
           author={c.author}
           district={c.district}
-          className="size-8 sm:size-9"
+          className="size-9 sm:size-10"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 min-h-[2.4em] text-[14px] font-medium leading-snug tracking-[-0.01em] text-foreground sm:min-h-[2.5em] sm:text-[15px]">
+          <h3 className="line-clamp-2 text-[15px] font-medium leading-snug tracking-[-0.01em] text-foreground sm:text-[16px]">
             {c.title}
           </h3>
           <p className="mt-0.5 truncate text-[12px] text-muted-foreground sm:mt-1 sm:text-[13px]">
