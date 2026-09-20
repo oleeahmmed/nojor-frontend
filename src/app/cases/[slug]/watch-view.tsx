@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ArchiveCase } from "@/lib/types";
-import { StatusChip } from "@/components/status-chip";
-import { StaffEditPanel } from "@/components/staff-edit-panel";
-import { WatchDescTabs } from "@/components/watch-desc-tabs";
+import { WatchCasePanel } from "@/components/watch-case-panel";
 import { EngagementBar } from "@/components/engagement-bar";
 import { CommentsPanel } from "@/components/comments-panel";
 import { VerdictPanel } from "@/components/verdict-panel";
@@ -18,13 +16,10 @@ import {
   PublisherAvatar,
   publisherLabel,
 } from "@/components/publisher-avatar";
-import { COMMUNITY } from "@/lib/community";
 
 /**
- * YouTube watch layout:
- * - No left mini-rail (handled by YtShell collapseSidebar)
- * - Primary column + fixed 402px related column
- * - Tight 24px gutters; player top-aligned with related list
+ * YouTube watch layout — keep meta simple:
+ * title → publisher + engage → one Case panel (ID + tabs) → comments
  */
 export function WatchView({
   c,
@@ -51,12 +46,7 @@ export function WatchView({
 
   return (
     <div className="w-full pb-10 pt-0 sm:pt-4">
-      {/*
-        YouTube watch: ~16–24px from left edge (align with header chrome),
-        no centered max-width that creates a big left void.
-      */}
       <div className="grid w-full grid-cols-1 gap-0 px-0 lg:grid-cols-[minmax(0,1fr)_402px] lg:gap-x-4 lg:px-4 xl:gap-x-6 xl:px-6">
-        {/* Primary — player + meta */}
         <div className="min-w-0">
           <VideoEmbed
             key={c.slug}
@@ -86,29 +76,12 @@ export function WatchView({
                     {publisherLabel(caseData.author, caseData.district)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {caseData.case_id ? (
-                      <>
-                        <span className="font-medium text-foreground/80">
-                          Case ID {caseData.case_id}
-                        </span>
-                        {" · "}
-                      </>
-                    ) : null}
                     {formatCount(views)} views
                     {partyLabel(caseData.accused_party)
                       ? ` · ${partyLabel(caseData.accused_party)}`
                       : ""}
                   </p>
-                  {caseData.case_id ? (
-                    <a
-                      href={`mailto:${COMMUNITY.team.email}?subject=${encodeURIComponent(`Case ID ${caseData.case_id}`)}`}
-                      className="mt-0.5 inline-block text-[11px] font-medium text-primary underline-offset-2 hover:underline"
-                    >
-                      এই Case ID দিয়ে ইমেইল করুন
-                    </a>
-                  ) : null}
                 </div>
-                <StatusChip status={status} />
               </div>
               <EngagementBar
                 slug={c.slug}
@@ -125,16 +98,8 @@ export function WatchView({
 
             <VerdictPanel key={`verdict-${c.slug}-${status}`} c={caseData} />
 
-            <StaffEditPanel
-              caseData={caseData}
-              onUpdated={(patch) => {
-                setCaseData((prev) => ({ ...prev, ...patch }));
-                if (patch.status) setStatus(patch.status);
-              }}
-            />
-
-            <WatchDescTabs
-              key={`tabs-${caseData.slug}`}
+            <WatchCasePanel
+              key={`panel-${caseData.slug}`}
               c={caseData}
               views={views}
               onUpdated={(patch) => {
@@ -153,7 +118,6 @@ export function WatchView({
           </div>
         </div>
 
-        {/* Secondary — related (YouTube 402px column) */}
         <aside className="mt-4 min-w-0 px-3 sm:px-0 lg:mt-0 lg:sticky lg:top-0 lg:self-start">
           <div className="space-y-1.5">
             {next.map((r) => (

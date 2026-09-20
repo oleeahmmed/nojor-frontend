@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   Check,
   Clock,
+  Copy,
   ExternalLink,
   FileText,
   Gavel,
+  Hash,
   Landmark,
+  Mail,
+  MapPin,
   Pencil,
   Plus,
   Trash2,
@@ -16,28 +20,31 @@ import type { ArchiveCase, LegalStatusKey } from "@/lib/types";
 import { formatCount } from "@/lib/engagement";
 import { ACCUSED_PARTIES, partyLabel, type AccusedPartyKey } from "@/lib/parties";
 import { STATUS_META, normalizeStatus } from "@/lib/status";
-import { clearStudio, staffEditCase } from "@/lib/studio";
+import { CRIME_CATEGORIES } from "@/lib/categories";
+import { COMMUNITY } from "@/lib/community";
+import { normalizeTags, tagsToInput } from "@/lib/tags";
+import {
+  clearStudio,
+  getStudioName,
+  staffEditCase,
+} from "@/lib/studio";
 import { useStudioSession } from "@/hooks/use-studio-session";
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/status-chip";
+import {
+  LocationFields,
+  type LocationValue,
+} from "@/components/location-fields";
 import { cn } from "@/lib/utils";
 
-type TabKey = "desc" | "source" | "legal";
+type TabKey = "desc" | "source" | "legal" | "meta";
 
-const TABS: { key: TabKey; label: string; icon: typeof FileText }[] = [
-  { key: "desc", label: "বিবরণ", icon: FileText },
-  { key: "source", label: "সূত্র", icon: ExternalLink },
-  { key: "legal", label: "আইনি", icon: Gavel },
-];
-
-const STATUS_OPTIONS = Object.keys(STATUS_META) as LegalStatusKey[];
+type SourceDraft = { t: string; p: string; url: string };
 
 const field =
   "h-10 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15";
 const area =
   "w-full resize-y rounded-xl border border-input bg-background px-3 py-2.5 text-sm leading-relaxed outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15";
-
-type SourceDraft = { t: string; p: string; url: string };
 
 function toDateInput(raw?: string | null) {
   if (!raw) return "";
@@ -45,21 +52,37 @@ function toDateInput(raw?: string | null) {
   return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : "";
 }
 
-export function WatchDescTabs({
+function locFromCase(c: ArchiveCase): LocationValue {
+  return {
+    division: c.division || "",
+    district: c.district || "",
+    upazila: c.upazila || "",
+    thana: c.thana || "",
+    village: c.village || "",
+  };
+}
+
+/**
+ * One clean panel: Case ID + desc/source/legal (+ staff meta).
+ * Public sees simple tabs; staff edits inside the same card.
+ */
+export function WatchCasePanel({
   c,
   views,
   onUpdated,
 }: {
   c: ArchiveCase;
   views: number;
-  onUpdated?: (patch: Partial<ArchiveCase>) => void;
+  onUpdated: (patch: Partial<ArchiveCase>) => void;
 }) {
   const { loggedIn } = useStudioSession();
+  const [staffName, setStaffName] = useState("");
   const [tab, setTab] = useState<TabKey>("desc");
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const [summary, setSummary] = useState(c.summary || "");
   const [party, setParty] = useState<AccusedPartyKey>(
@@ -73,6 +96,27 @@ export function WatchDescTabs({
   const [caseNumber, setCaseNumber] = useState(c.case_number || "");
   const [incidentDate, setIncidentDate] = useState(toDateInput(c.incident_date));
 
+  const [title, setTitle] = useState(c.title);
+  const [location, setLocation] = useState<LocationValue>(() => locFromCase(c));
+  const [category, setCategory] = useState(c.crime_category || "");
+  const [tagsInput, setTagsInput] = useState(tagsToInput(c.tags));
+
+  const caseId = (c.case_id || "").trim();
+  const partyText = partyLabel(c.accused_party);
+
+  const tabs: { key: TabKey; label: string; icon: typeof FileText }[] = [
+    { key: "desc", label: "বিবরণ", icon: FileText },
+    { key: "source", label: "সূত্র", icon: ExternalLink },
+    { key: "legal", label: "আইনি", icon: Gavel },
+    ...(loggedIn
+      ? ([{ key: "meta" as const, label: "মেটা", icon: MapPin }] as const)
+      : []),
+  ];
+
+  useEffect(() => {
+    setStaffName(getStudioName());
+  }, [loggedIn]);
+
   useEffect(() => {
     setSummary(c.summary || "");
     setParty((c.accused_party as AccusedPartyKey) || "");
@@ -81,29 +125,57 @@ export function WatchDescTabs({
     setVerdict(c.verdict_summary || "");
     setCaseNumber(c.case_number || "");
     setIncidentDate(toDateInput(c.incident_date));
+    setTitle(c.title);
+    setLocation(locFromCase(c));
+    setCategory(c.crime_category || "");
+    setTagsInput(tagsToInput(c.tags));
     setEditing(false);
     setErr("");
     setMsg("");
   }, [c.slug, c]);
 
   useEffect(() => {
-    if (!loggedIn) setEditing(false);
+    if (!loggedIn) {
+      setEditing(false);
+      setTab((t) => (t === "meta" ? "desc" : t));
+    }
   }, [loggedIn]);
 
-  const partyText = partyLabel(c.accused_party);
+  async function copyCaseId() {
+    if (!caseId) return;
+    try {
+      await navigator.clipboard.writeText(caseId);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function resetDrafts() {
+    setSummary(c.summary || "");
+    setParty((c.accused_party as AccusedPartyKey) || "");
+    setSources(c.sources.map((s) => ({ t: s.t, p: s.p, url: s.url || "" })));
+    setStatus(normalizeStatus(c.status));
+    setVerdict(c.verdict_summary || "");
+    setCaseNumber(c.case_number || "");
+    setIncidentDate(toDateInput(c.incident_date));
+    setTitle(c.title);
+    setLocation(locFromCase(c));
+    setCategory(c.crime_category || "");
+    setTagsInput(tagsToInput(c.tags));
+  }
 
   async function saveTab() {
     setBusy(true);
     setErr("");
     setMsg("");
     try {
-      let body: Parameters<typeof staffEditCase>[1] = { note: "watch tabs edit" };
+      let body: Parameters<typeof staffEditCase>[1] = {
+        note: "watch panel edit",
+      };
       if (tab === "desc") {
-        body = {
-          ...body,
-          summary: summary.trim(),
-          accused_party: party,
-        };
+        body = { ...body, summary: summary.trim(), accused_party: party };
       } else if (tab === "source") {
         body = {
           ...body,
@@ -115,13 +187,26 @@ export function WatchDescTabs({
               url: s.url.trim(),
             })),
         };
-      } else {
+      } else if (tab === "legal") {
         body = {
           ...body,
           legal_status: status,
           verdict_summary: verdict.trim(),
           case_number: caseNumber.trim(),
           incident_date: incidentDate || null,
+        };
+      } else {
+        body = {
+          ...body,
+          title: title.trim(),
+          district: location.district.trim(),
+          division: location.division.trim(),
+          upazila: location.upazila.trim(),
+          thana: location.thana.trim(),
+          village: location.village.trim(),
+          crime_category: category || undefined,
+          tags: normalizeTags(tagsInput),
+          visibility: "published",
         };
       }
 
@@ -152,7 +237,7 @@ export function WatchDescTabs({
             }));
         patch.sources = next;
         setSources(next.map((s) => ({ t: s.t, p: s.p, url: s.url || "" })));
-      } else {
+      } else if (tab === "legal") {
         const nextStatus = normalizeStatus(res.legal_status || status);
         patch.status = nextStatus;
         patch.verdict_summary = res.verdict_summary ?? verdict.trim();
@@ -164,21 +249,27 @@ export function WatchDescTabs({
         if (res.incident_date) {
           patch.date = String(res.incident_date).slice(0, 10);
         }
-        // Optimistic timeline tip
         if (nextStatus !== c.status) {
           patch.timeline = [
-            {
-              s: STATUS_META[nextStatus].label,
-              d: "এখন",
-              done: true,
-            },
+            { s: STATUS_META[nextStatus].label, d: "এখন", done: true },
             ...c.timeline,
           ];
         }
         setStatus(nextStatus);
+      } else {
+        patch.title = res.title || title;
+        patch.district = res.district || location.district;
+        patch.division = res.division || location.division;
+        patch.upazila = res.upazila || location.upazila;
+        patch.thana = res.thana || location.thana;
+        patch.village = res.village || location.village;
+        patch.crime_category = res.crime_category || category;
+        patch.tags = Array.isArray(res.tags)
+          ? res.tags
+          : normalizeTags(tagsInput);
       }
 
-      onUpdated?.(patch);
+      onUpdated(patch);
       setMsg("সেভ হয়েছে");
       setEditing(false);
     } finally {
@@ -186,15 +277,70 @@ export function WatchDescTabs({
     }
   }
 
+  async function onMetaSubmit(e: FormEvent) {
+    e.preventDefault();
+    await saveTab();
+  }
+
+  const mailto = caseId
+    ? `mailto:${COMMUNITY.team.email}?subject=${encodeURIComponent(`Case ID ${caseId}`)}`
+    : `mailto:${COMMUNITY.team.email}?subject=${encodeURIComponent(COMMUNITY.team.subject)}`;
+
   return (
-    <div className="mt-3 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
-      {/* Tab rail — underline style */}
+    <div className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card">
+      {/* Case ID — always one clear place */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-3.5 py-2.5 sm:px-4">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          {caseId ? (
+            <span className="inline-flex max-w-full items-center gap-1.5 rounded-lg bg-muted/80 px-2.5 py-1 font-mono text-[12px] font-semibold tracking-tight text-foreground sm:text-[13px]">
+              <Hash className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{caseId}</span>
+            </span>
+          ) : (
+            <span className="text-[12px] text-muted-foreground">Case ID নেই</span>
+          )}
+          {caseId ? (
+            <>
+              <button
+                type="button"
+                onClick={() => void copyCaseId()}
+                className="inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-[11px] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                title="কপি"
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+                {copied ? "কপি" : "কপি"}
+              </button>
+              <a
+                href={mailto}
+                className="inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-[11px] font-medium text-primary transition hover:bg-primary/10"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                ইমেইল
+              </a>
+            </>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusChip status={c.status} />
+          {loggedIn ? (
+            <span className="hidden text-[11px] text-muted-foreground sm:inline">
+              {staffName || "স্টাফ"}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Tabs */}
       <div
         role="tablist"
-        aria-label="ভিডিও তথ্য"
-        className="relative flex gap-0 border-b border-border/70 bg-muted/25 px-1"
+        aria-label="কেস তথ্য"
+        className="flex gap-0 border-b border-border/60 bg-muted/20 px-1"
       >
-        {TABS.map((t) => {
+        {tabs.map((t) => {
           const Icon = t.icon;
           const on = tab === t.key;
           return (
@@ -210,21 +356,19 @@ export function WatchDescTabs({
                 setMsg("");
               }}
               className={cn(
-                "relative flex flex-1 items-center justify-center gap-1.5 px-2 py-3 text-[13px] font-semibold tracking-tight transition sm:text-[14px]",
+                "relative flex flex-1 items-center justify-center gap-1.5 px-1.5 py-2.5 text-[12px] font-semibold tracking-tight transition sm:text-[13px]",
                 on
                   ? "text-foreground"
                   : "text-muted-foreground hover:text-foreground/80",
               )}
             >
-              <Icon
-                className={cn("h-3.5 w-3.5 shrink-0", on ? "opacity-100" : "opacity-70")}
-              />
+              <Icon className="h-3.5 w-3.5 shrink-0 opacity-80" />
               {t.label}
               <span
                 aria-hidden
                 className={cn(
-                  "absolute inset-x-3 -bottom-px h-[2.5px] rounded-full transition-all",
-                  on ? "bg-primary scale-x-100" : "scale-x-0 bg-transparent",
+                  "absolute inset-x-2 -bottom-px h-[2px] rounded-full transition-all",
+                  on ? "scale-x-100 bg-primary" : "scale-x-0 bg-transparent",
                 )}
               />
             </button>
@@ -232,9 +376,9 @@ export function WatchDescTabs({
         })}
       </div>
 
-      <div className="px-3.5 py-3.5 sm:px-4">
+      <div className="px-3.5 py-3 sm:px-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[12px] font-medium text-muted-foreground">
+          <p className="text-[12px] text-muted-foreground">
             {formatCount(views)} views
             {c.date && c.date !== "—" ? ` · ${c.date}` : ""}
             {partyText ? ` · ${partyText}` : ""}
@@ -253,49 +397,50 @@ export function WatchDescTabs({
                       setEditing(false);
                       setErr("");
                       setMsg("");
-                      setSummary(c.summary || "");
-                      setParty((c.accused_party as AccusedPartyKey) || "");
-                      setSources(
-                        c.sources.map((s) => ({
-                          t: s.t,
-                          p: s.p,
-                          url: s.url || "",
-                        })),
-                      );
-                      setStatus(normalizeStatus(c.status));
-                      setVerdict(c.verdict_summary || "");
-                      setCaseNumber(c.case_number || "");
-                      setIncidentDate(toDateInput(c.incident_date));
+                      resetDrafts();
                     }}
                   >
                     বাতিল
                   </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    disabled={busy}
-                    className="h-8 rounded-full gap-1 px-3 text-[12px]"
-                    onClick={() => void saveTab()}
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    {busy ? "সেভ…" : "সেভ"}
-                  </Button>
+                  {tab !== "meta" ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={busy}
+                      className="h-8 rounded-full gap-1 px-3 text-[12px]"
+                      onClick={() => void saveTab()}
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      {busy ? "সেভ…" : "সেভ"}
+                    </Button>
+                  ) : null}
                 </>
               ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-8 rounded-full gap-1 px-3 text-[12px]"
-                  onClick={() => {
-                    setEditing(true);
-                    setErr("");
-                    setMsg("");
-                  }}
-                >
-                  <Pencil className="h-3 w-3" />
-                  এডিট
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 rounded-full gap-1 px-3 text-[12px]"
+                    onClick={() => {
+                      setEditing(true);
+                      setErr("");
+                      setMsg("");
+                    }}
+                  >
+                    <Pencil className="h-3 w-3" />
+                    এডিট
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 rounded-full px-2 text-[11px] text-muted-foreground"
+                    onClick={() => clearStudio()}
+                  >
+                    লগআউট
+                  </Button>
+                </>
               )}
             </div>
           ) : null}
@@ -312,6 +457,7 @@ export function WatchDescTabs({
           </p>
         ) : null}
 
+        {/* বিবরণ */}
         {tab === "desc" ? (
           <div className="mt-3 space-y-3">
             {editing ? (
@@ -363,6 +509,7 @@ export function WatchDescTabs({
           </div>
         ) : null}
 
+        {/* সূত্র */}
         {tab === "source" ? (
           <div className="mt-3 space-y-2">
             {editing ? (
@@ -482,6 +629,7 @@ export function WatchDescTabs({
           </div>
         ) : null}
 
+        {/* আইনি */}
         {tab === "legal" ? (
           <div className="mt-3 space-y-3">
             {editing ? (
@@ -497,7 +645,7 @@ export function WatchDescTabs({
                       setStatus(e.target.value as LegalStatusKey)
                     }
                   >
-                    {STATUS_OPTIONS.map((k) => (
+                    {(Object.keys(STATUS_META) as LegalStatusKey[]).map((k) => (
                       <option key={k} value={k}>
                         {STATUS_META[k].label}
                       </option>
@@ -586,6 +734,107 @@ export function WatchDescTabs({
               </>
             )}
           </div>
+        ) : null}
+
+        {/* মেটা — staff only */}
+        {tab === "meta" && loggedIn ? (
+          <form onSubmit={onMetaSubmit} className="mt-3 space-y-3">
+            {editing ? (
+              <>
+                <label className="block space-y-1.5">
+                  <span className="text-[12px] font-medium text-muted-foreground">
+                    শিরোনাম
+                  </span>
+                  <input
+                    className={field}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </label>
+                <div>
+                  <p className="mb-1.5 text-[12px] font-medium text-muted-foreground">
+                    এলাকা
+                  </p>
+                  <LocationFields
+                    compact
+                    value={location}
+                    onChange={setLocation}
+                  />
+                </div>
+                <label className="block space-y-1.5">
+                  <span className="text-[12px] font-medium text-muted-foreground">
+                    ক্যাটাগরি
+                  </span>
+                  <select
+                    className={field}
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="">—</option>
+                    {CRIME_CATEGORIES.filter((x) => x.key !== "all").map((x) => (
+                      <option key={x.key} value={x.key}>
+                        {x.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block space-y-1.5">
+                  <span className="text-[12px] font-medium text-muted-foreground">
+                    হ্যাশট্যাগ
+                  </span>
+                  <input
+                    className={field}
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    placeholder="#বিএনপি #হুমকি"
+                  />
+                </label>
+                <p className="text-[11px] text-muted-foreground">
+                  ভিডিও সরাতে{" "}
+                  <a
+                    href={`mailto:${COMMUNITY.team.email}`}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    {COMMUNITY.team.email}
+                  </a>
+                </p>
+                <Button
+                  type="submit"
+                  disabled={busy}
+                  className="h-10 rounded-full px-5"
+                >
+                  {busy ? "সেভ…" : "সেভ"}
+                </Button>
+              </>
+            ) : (
+              <div className="space-y-2 text-sm">
+                <p>
+                  <span className="text-muted-foreground">শিরোনাম · </span>
+                  {c.title}
+                </p>
+                <p>
+                  <span className="text-muted-foreground">এলাকা · </span>
+                  {[c.village, c.thana, c.upazila, c.district, c.division]
+                    .filter(Boolean)
+                    .join(", ") || "—"}
+                </p>
+                <p>
+                  <span className="text-muted-foreground">ক্যাটাগরি · </span>
+                  {CRIME_CATEGORIES.find((x) => x.key === c.crime_category)
+                    ?.label ||
+                    c.crime_category ||
+                    "—"}
+                </p>
+                {c.tags?.length ? (
+                  <p>
+                    <span className="text-muted-foreground">ট্যাগ · </span>
+                    {c.tags.join(" ")}
+                  </p>
+                ) : null}
+              </div>
+            )}
+          </form>
         ) : null}
       </div>
     </div>
