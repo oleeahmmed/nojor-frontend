@@ -249,6 +249,7 @@ export async function staffEditCase(slug: string, body: CaseStaffEditBody) {
     upazila?: string;
     thana?: string;
     village?: string;
+    location_text?: string;
     crime_category?: string;
     accused_party?: string;
     tags?: string[];
@@ -257,6 +258,7 @@ export async function staffEditCase(slug: string, body: CaseStaffEditBody) {
     verdict_summary?: string;
     legal_status?: string;
     visibility?: string;
+    incident_date?: string | null;
     incident_date?: string | null;
     verdict_date?: string | null;
     sources?: { title: string; url?: string; publisher?: string }[];
