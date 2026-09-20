@@ -101,7 +101,7 @@ export function HomeFeed({
         </ChipScroller>
       </div>
 
-      <div className="w-full min-w-0 px-3 pb-32 pt-3 sm:px-4 sm:pb-24 sm:pt-4 md:px-5 md:pb-24 lg:px-6">
+      <div className="w-full min-w-0 px-3 pb-32 pt-3 sm:px-5 sm:pb-24 sm:pt-5 md:px-6 lg:px-8">
         {query.trim() ? (
           <p className="mb-3 text-sm text-muted-foreground sm:mb-4">
             সার্চ ফলাফল:{" "}
@@ -111,17 +111,17 @@ export function HomeFeed({
           </p>
         ) : null}
         {/*
-          YouTube-like: larger cards, fewer columns.
-          1 → 2 → 3 → 4 as viewport grows; min ~320px so thumbs stay big.
+          Big YouTube-style cards:
+          phone 1 · tablet 2 · desktop 3 · ultrawide 4
+          Each column fills width so thumbs stay large.
         */}
         <div
           className={cn(
-            "grid w-full gap-x-3 gap-y-6",
-            "grid-cols-1",
-            "min-[520px]:grid-cols-2 min-[520px]:gap-x-4 min-[520px]:gap-y-7",
-            "lg:grid-cols-3 lg:gap-x-4 lg:gap-y-8",
-            "xl:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] xl:gap-x-4",
-            "2xl:grid-cols-[repeat(auto-fill,minmax(340px,1fr))] 2xl:gap-x-5",
+            "grid w-full",
+            "grid-cols-1 gap-x-4 gap-y-7",
+            "min-[640px]:grid-cols-2 min-[640px]:gap-x-5 min-[640px]:gap-y-8",
+            "min-[1100px]:grid-cols-3 min-[1100px]:gap-x-5 min-[1100px]:gap-y-9",
+            "min-[1600px]:grid-cols-4 min-[1600px]:gap-x-6 min-[1600px]:gap-y-10",
           )}
         >
           {shown.map((c, i) => (

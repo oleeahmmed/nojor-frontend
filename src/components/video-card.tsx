@@ -83,10 +83,10 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
           className="size-9 sm:size-10"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-2 text-[15px] font-medium leading-snug tracking-[-0.01em] text-foreground sm:text-[16px]">
+          <h3 className="line-clamp-2 text-[16px] font-medium leading-snug tracking-[-0.015em] text-foreground sm:text-[17px]">
             {c.title}
           </h3>
-          <p className="mt-0.5 truncate text-[12px] text-muted-foreground sm:mt-1 sm:text-[13px]">
+          <p className="mt-1 truncate text-[13px] text-muted-foreground sm:text-[14px]">
             <span>{publisherLabel(c.author, c.district)}</span>
             {c.case_id ? (
               <>
@@ -106,7 +106,7 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
               <BadgeCheck className="ml-1 inline h-3.5 w-3.5 align-text-bottom text-primary" />
             ) : null}
           </p>
-          <p className="truncate text-[12px] text-muted-foreground sm:text-[13px]">
+          <p className="truncate text-[13px] text-muted-foreground sm:text-[14px]">
             {c.view_count > 0
               ? `${formatCount(c.view_count)} views`
               : c.views || "0 views"}
