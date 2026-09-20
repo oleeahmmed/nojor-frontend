@@ -15,7 +15,8 @@ import { useIdentity } from "./identity-provider";
 import { useApp } from "./providers";
 
 const CreateModal = dynamic(
-  () => import("./create-modal").then((m) => m.CreateModal),
+  () =>
+    import("./create-modal").then((m) => ({ default: m.CreateModal })),
   { ssr: false },
 );
 

@@ -14,10 +14,24 @@ import {
 } from "@/lib/studio";
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/status-chip";
+import {
+  LocationFields,
+  type LocationValue,
+} from "@/components/location-fields";
 
 const field =
   "mt-1 flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm";
 const labelCls = "block text-[12px] font-medium text-muted-foreground";
+
+function locFromCase(c: ArchiveCase): LocationValue {
+  return {
+    division: c.division || "",
+    district: c.district || "",
+    upazila: c.upazila || "",
+    thana: c.thana || "",
+    village: c.village || "",
+  };
+}
 
 export function StaffEditPanel({
   caseData,
@@ -34,11 +48,9 @@ export function StaffEditPanel({
   const [err, setErr] = useState("");
 
   const [title, setTitle] = useState(caseData.title);
-  const [district, setDistrict] = useState(caseData.district || "");
-  const [division, setDivision] = useState(caseData.division || "");
-  const [upazila, setUpazila] = useState(caseData.upazila || "");
-  const [thana, setThana] = useState(caseData.thana || "");
-  const [village, setVillage] = useState(caseData.village || "");
+  const [location, setLocation] = useState<LocationValue>(() =>
+    locFromCase(caseData),
+  );
   const [category, setCategory] = useState(caseData.crime_category || "");
   const [tagsInput, setTagsInput] = useState(tagsToInput(caseData.tags));
 
@@ -54,11 +66,7 @@ export function StaffEditPanel({
 
   useEffect(() => {
     setTitle(caseData.title);
-    setDistrict(caseData.district || "");
-    setDivision(caseData.division || "");
-    setUpazila(caseData.upazila || "");
-    setThana(caseData.thana || "");
-    setVillage(caseData.village || "");
+    setLocation(locFromCase(caseData));
     setCategory(caseData.crime_category || "");
     setTagsInput(tagsToInput(caseData.tags));
     setMsg("");
@@ -75,11 +83,11 @@ export function StaffEditPanel({
     try {
       const res = await staffEditCase(caseData.slug, {
         title: title.trim(),
-        district: district.trim(),
-        division: division.trim(),
-        upazila: upazila.trim(),
-        thana: thana.trim(),
-        village: village.trim(),
+        district: location.district.trim(),
+        division: location.division.trim(),
+        upazila: location.upazila.trim(),
+        thana: location.thana.trim(),
+        village: location.village.trim(),
         crime_category: category || undefined,
         tags: normalizeTags(tagsInput),
         visibility: "published",
@@ -95,11 +103,11 @@ export function StaffEditPanel({
       }
       onUpdated({
         title: res.title || title,
-        district: res.district || district,
-        division: res.division || division,
-        upazila: res.upazila || upazila,
-        thana: res.thana || thana,
-        village: res.village || village,
+        district: res.district || location.district,
+        division: res.division || location.division,
+        upazila: res.upazila || location.upazila,
+        thana: res.thana || location.thana,
+        village: res.village || location.village,
         crime_category: res.crime_category || category,
         tags: Array.isArray(res.tags) ? res.tags : normalizeTags(tagsInput),
       });
@@ -145,63 +153,36 @@ export function StaffEditPanel({
               required
             />
           </label>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <label className={labelCls}>
-              জেলা
-              <input
-                className={field}
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
+
+          <div>
+            <p className="mb-1.5 text-[12px] font-medium text-muted-foreground">
+              এলাকা (বিভাগ → জেলা → উপজেলা/থানা)
+            </p>
+            <div className="rounded-xl border border-border/80 bg-background/60 p-3">
+              <LocationFields
+                compact
+                value={location}
+                onChange={setLocation}
               />
-            </label>
-            <label className={labelCls}>
-              বিভাগ
-              <input
-                className={field}
-                value={division}
-                onChange={(e) => setDivision(e.target.value)}
-              />
-            </label>
-            <label className={labelCls}>
-              উপজেলা
-              <input
-                className={field}
-                value={upazila}
-                onChange={(e) => setUpazila(e.target.value)}
-              />
-            </label>
-            <label className={labelCls}>
-              থানা
-              <input
-                className={field}
-                value={thana}
-                onChange={(e) => setThana(e.target.value)}
-              />
-            </label>
-            <label className={labelCls}>
-              গ্রাম/এলাকা
-              <input
-                className={field}
-                value={village}
-                onChange={(e) => setVillage(e.target.value)}
-              />
-            </label>
-            <label className={labelCls}>
-              ক্যাটাগরি
-              <select
-                className={field}
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="">—</option>
-                {CRIME_CATEGORIES.filter((c) => c.key !== "all").map((c) => (
-                  <option key={c.key} value={c.key}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            </div>
           </div>
+
+          <label className={labelCls}>
+            ক্যাটাগরি
+            <select
+              className={field}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="">—</option>
+              {CRIME_CATEGORIES.filter((c) => c.key !== "all").map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <p className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
             বিবরণ · সূত্র · আইনি অবস্থা নিচের ট্যাব থেকে এডিট করুন। ভিডিও সরাতে{" "}
             <a
