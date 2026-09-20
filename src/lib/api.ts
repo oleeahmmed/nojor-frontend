@@ -57,6 +57,7 @@ function listToArchive(item: CaseListItem): ArchiveCase {
     media_embed_id: item.media_embed_id,
     media_url: item.media_url,
     thumbnail_url: item.thumbnail_url,
+    author: item.author || null,
   };
 }
 
@@ -126,6 +127,7 @@ function detailToArchive(d: CaseDetail): ArchiveCase {
     verdict_agree: d.verdict_agree ?? 0,
     verdict_disagree: d.verdict_disagree ?? 0,
     verdict_neutral: d.verdict_neutral ?? 0,
+    author: d.author || null,
   };
 }
 

@@ -7,6 +7,19 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:800
 
 const TOKEN_KEY = "nojor-studio-token";
 const NAME_KEY = "nojor-studio-name";
+const AVATAR_KEY = "nojor-studio-avatar";
+
+/** Make media URLs absolute against API host when relative. */
+export function mediaUrl(url?: string | null): string {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
+  if (url.startsWith("//")) return `https:${url}`;
+  const base = API_BASE.replace(/\/$/, "");
+  return url.startsWith("/") ? `${base}${url}` : `${base}/${url}`;
+}
+
+/** @deprecated alias — prefer mediaUrl */
+export const resolveMediaUrl = mediaUrl;
 
 export function getStudioToken(): string {
   if (typeof window === "undefined") return "";
@@ -18,9 +31,27 @@ export function getStudioName(): string {
   return localStorage.getItem(NAME_KEY) ?? "";
 }
 
-function saveStudio(token: string, name: string) {
+export function getStudioAvatar(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem(AVATAR_KEY) ?? "";
+}
+
+function saveStudio(token: string, name: string, avatarUrl = "") {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(NAME_KEY, name);
+  if (avatarUrl) localStorage.setItem(AVATAR_KEY, avatarUrl);
+  else localStorage.removeItem(AVATAR_KEY);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("nojor-studio"));
+  }
+}
+
+function patchStudioProfile(name?: string, avatarUrl?: string) {
+  if (name !== undefined) localStorage.setItem(NAME_KEY, name);
+  if (avatarUrl !== undefined) {
+    if (avatarUrl) localStorage.setItem(AVATAR_KEY, avatarUrl);
+    else localStorage.removeItem(AVATAR_KEY);
+  }
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("nojor-studio"));
   }
@@ -29,6 +60,7 @@ function saveStudio(token: string, name: string) {
 export function clearStudio() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(NAME_KEY);
+  localStorage.removeItem(AVATAR_KEY);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("nojor-studio"));
   }
@@ -50,6 +82,7 @@ export async function studioLogin(username: string, password: string) {
       ok?: boolean;
       token?: string;
       name?: string;
+      avatar_url?: string;
       error?: string;
     } = {};
     try {
@@ -67,7 +100,13 @@ export async function studioLogin(username: string, password: string) {
         error: `লগইন ব্যর্থ (HTTP ${res.status})। সার্ভার JSON দেয়নি।`,
       };
     }
-    if (data.ok && data.token) saveStudio(data.token, data.name || username);
+    if (data.ok && data.token) {
+      saveStudio(
+        data.token,
+        data.name || username,
+        mediaUrl(data.avatar_url || ""),
+      );
+    }
     if (!data.ok && !data.error) {
       data.error =
         res.status === 403
@@ -100,18 +139,65 @@ export async function studioLogout() {
 }
 
 /** Verify stored token is still valid; clears it if not. */
-export async function studioMe(): Promise<{ ok: boolean; name?: string }> {
+export async function studioMe(): Promise<{
+  ok: boolean;
+  name?: string;
+  avatar_url?: string;
+}> {
   const token = getStudioToken();
   if (!token) return { ok: false };
   try {
     const res = await fetch(`${API_BASE}/api/auth/me/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const data = (await res.json()) as { ok: boolean; name?: string };
+    const data = (await res.json()) as {
+      ok: boolean;
+      name?: string;
+      avatar_url?: string;
+    };
     if (!data.ok) clearStudio();
+    else {
+      patchStudioProfile(data.name, mediaUrl(data.avatar_url || ""));
+    }
     return data;
   } catch {
     return { ok: false };
+  }
+}
+
+export async function studioUpdateProfile(fields: {
+  name?: string;
+  avatar?: File | null;
+}) {
+  const token = getStudioToken();
+  if (!token) return { ok: false as const, error: "স্টাফ লগইন প্রয়োজন।" };
+
+  const fd = new FormData();
+  if (fields.name?.trim()) fd.append("name", fields.name.trim());
+  if (fields.avatar) fd.append("avatar", fields.avatar);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/profile/`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+    });
+    const data = (await res.json()) as {
+      ok?: boolean;
+      error?: string;
+      message?: string;
+      name?: string;
+      avatar_url?: string;
+    };
+    if (data.ok) {
+      patchStudioProfile(
+        data.name || fields.name?.trim(),
+        mediaUrl(data.avatar_url || ""),
+      );
+    }
+    return data;
+  } catch {
+    return { ok: false as const, error: "সার্ভারে সংযোগ হয়নি।" };
   }
 }
 
@@ -216,29 +302,19 @@ export function uploadVideo(
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${API_BASE}/api/studio/upload`);
-    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable && onProgress)
-        onProgress(Math.round((e.loaded / e.total) * 100));
+      if (!e.lengthComputable || !onProgress) return;
+      onProgress(Math.round((e.loaded / e.total) * 100));
     };
     xhr.onload = () => {
       try {
         resolve(JSON.parse(xhr.responseText) as UploadResult);
       } catch {
-        resolve({ ok: false, error: "আপলোড ব্যর্থ — আবার চেষ্টা করুন।" });
+        resolve({ ok: false, error: "আপলোড রেসপন্স পার্স হয়নি।" });
       }
     };
-    xhr.onerror = () =>
-      resolve({ ok: false, error: "নেটওয়ার্ক সমস্যা — আবার চেষ্টা করুন।" });
+    xhr.onerror = () => resolve({ ok: false, error: "নেটওয়ার্ক এরর।" });
     xhr.send(fd);
   });
-}
-
-/** Resolve a media URL that may be relative to the API host (local dev storage). */
-export function resolveMediaUrl(url?: string): string {
-  const u = (url || "").trim();
-  if (!u) return "";
-  if (u.startsWith("http://") || u.startsWith("https://")) return u;
-  if (u.startsWith("/")) return `${API_BASE}${u}`;
-  return u;
 }

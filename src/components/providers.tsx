@@ -53,8 +53,16 @@ export function Providers({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setThemeState(DEFAULT_THEME);
-    localStorage.setItem("nojor-theme", DEFAULT_THEME);
+    const savedTheme = (localStorage.getItem("nojor-theme") ||
+      localStorage.getItem("ninnoy-theme")) as ThemeId | null;
+    if (
+      savedTheme === "youtube" ||
+      savedTheme === "facebook" ||
+      savedTheme === "instagram" ||
+      savedTheme === "nojor"
+    ) {
+      setThemeState(savedTheme);
+    }
 
     const savedMode = (localStorage.getItem("nojor-color-mode") ||
       localStorage.getItem("ninnoy-color-mode")) as ColorMode | null;
@@ -80,12 +88,12 @@ export function Providers({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.setAttribute("data-theme", DEFAULT_THEME);
+    root.setAttribute("data-theme", theme);
     root.classList.toggle("dark", colorMode === "dark");
     if (!hydrated) return;
-    localStorage.setItem("nojor-theme", DEFAULT_THEME);
+    localStorage.setItem("nojor-theme", theme);
     localStorage.setItem("nojor-color-mode", colorMode);
-  }, [colorMode, hydrated]);
+  }, [theme, colorMode, hydrated]);
 
   const setOfficial = useCallback((d: string, token: string) => {
     setRole("official");
@@ -112,8 +120,8 @@ export function Providers({ children }: { children: ReactNode }) {
   const openAreaPicker = useCallback(() => setAreaPickerOpen(true), []);
   const closeAreaPicker = useCallback(() => setAreaPickerOpen(false), []);
 
-  const setTheme = useCallback((_t: ThemeId) => {
-    setThemeState(DEFAULT_THEME);
+  const setTheme = useCallback((t: ThemeId) => {
+    setThemeState(t);
   }, []);
   const setColorMode = useCallback((m: ColorMode) => setColorModeState(m), []);
   const toggleColorMode = useCallback(

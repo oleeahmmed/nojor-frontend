@@ -139,6 +139,7 @@ export function YtShell({
         open={studio.open}
         onOpenChange={studio.setOpen}
         name={studio.name}
+        avatarUrl={studio.avatarUrl}
       />
     </div>
   );

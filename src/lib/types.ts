@@ -8,6 +8,13 @@ export type LegalStatusKey =
   | "dismissed"
   | "no_action";
 
+export type CaseAuthor = {
+  id?: string;
+  username?: string;
+  name: string;
+  avatar_url?: string;
+};
+
 export type CaseListItem = {
   id: string;
   slug: string;
@@ -31,6 +38,7 @@ export type CaseListItem = {
   media_url?: string;
   thumbnail_url?: string;
   duration_seconds?: number | null;
+  author?: CaseAuthor | null;
 };
 
 export type CaseDetail = {
@@ -78,6 +86,7 @@ export type CaseDetail = {
   verdict_agree?: number;
   verdict_disagree?: number;
   verdict_neutral?: number;
+  author?: CaseAuthor | null;
 };
 
 /** UI-enriched case used across pages (API + local demos). */
@@ -107,6 +116,7 @@ export type ArchiveCase = {
   summary: string;
   timeline: { s: string; d: string; done: boolean }[];
   sources: { t: string; p: string; url?: string }[];
+  author?: CaseAuthor | null;
   media_provider?: string;
   media_embed_id?: string;
   media_url?: string;

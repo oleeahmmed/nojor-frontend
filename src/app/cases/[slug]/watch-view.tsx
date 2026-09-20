@@ -14,11 +14,14 @@ import { CommentsPanel } from "@/components/comments-panel";
 import { VerdictPanel } from "@/components/verdict-panel";
 import { VideoEmbed } from "@/components/video-embed";
 import { formatCount } from "@/lib/engagement";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { RelatedThumb } from "./related-thumb";
 import { useStudioSession } from "@/hooks/use-studio-session";
 import { partyLabel } from "@/lib/parties";
 import { CaseHashtags } from "@/components/case-hashtags";
+import {
+  PublisherAvatar,
+  publisherLabel,
+} from "@/components/publisher-avatar";
 
 /**
  * YouTube watch layout:
@@ -79,14 +82,14 @@ export function WatchView({
 
             <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3">
-                <Avatar>
-                  <AvatarFallback className="bg-primary text-sm font-bold text-primary-foreground">
-                    {(caseData.district || "N").slice(0, 1)}
-                  </AvatarFallback>
-                </Avatar>
+                <PublisherAvatar
+                  author={caseData.author}
+                  district={caseData.district}
+                  size="lg"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">
-                    {caseData.district} Archive
+                    {publisherLabel(caseData.author, caseData.district)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {formatCount(views)} views

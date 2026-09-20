@@ -9,7 +9,10 @@ import { formatCount } from "@/lib/engagement";
 import { categoryLabel } from "@/lib/categories";
 import { CaseHashtags } from "./case-hashtags";
 import { resolveCaseThumbnail, youtubeThumbUrl } from "@/lib/thumbnails";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  PublisherAvatar,
+  publisherLabel,
+} from "@/components/publisher-avatar";
 
 const THUMB_TONES = [
   "linear-gradient(145deg,#2b2b2b 0%,#111 55%,#3a3a3a 100%)",
@@ -74,17 +77,17 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
       </div>
 
       <div className="mt-2.5 flex gap-2.5 sm:mt-3 sm:gap-3">
-        <Avatar size="default" className="size-8 shrink-0 sm:size-9">
-          <AvatarFallback className="bg-primary text-[11px] font-bold text-primary-foreground sm:text-xs">
-            {(c.district || "N").slice(0, 1)}
-          </AvatarFallback>
-        </Avatar>
+        <PublisherAvatar
+          author={c.author}
+          district={c.district}
+          className="size-8 sm:size-9"
+        />
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-2 min-h-[2.4em] text-[14px] font-medium leading-snug tracking-[-0.01em] text-foreground sm:min-h-[2.5em] sm:text-[15px]">
             {c.title}
           </h3>
           <p className="mt-0.5 truncate text-[12px] text-muted-foreground sm:mt-1 sm:text-[13px]">
-            <span>{c.district || "অজানা"}</span>
+            <span>{publisherLabel(c.author, c.district)}</span>
             {c.crime_category ? (
               <>
                 <span> · </span>

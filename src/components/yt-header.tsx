@@ -12,7 +12,7 @@ import { HomeDistrictFilter } from "./home-district-filter";
 import { SmartSearchPanel } from "./smart-search-panel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function YtHeader({
   onMenu,
@@ -27,7 +27,7 @@ export function YtHeader({
 }) {
   const { role } = useApp();
   const { name } = useIdentity();
-  const { loggedIn: studioOk, name: studioName } = useStudioSession();
+  const { loggedIn: studioOk, name: studioName, avatarUrl } = useStudioSession();
   const router = useRouter();
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") || "");
@@ -179,10 +179,13 @@ export function YtHeader({
           title={avatarLabel}
         >
           <Avatar size="sm">
+            {studioOk && avatarUrl ? (
+              <AvatarImage src={avatarUrl} alt="" />
+            ) : null}
             <AvatarFallback
               className={
                 studioOk
-                  ? "bg-red-600 text-[11px] font-bold text-white"
+                  ? "bg-primary text-[11px] font-bold text-primary-foreground"
                   : role === "official"
                     ? "bg-emerald-600 text-[11px] font-bold text-white"
                     : "bg-primary text-[11px] font-bold text-primary-foreground"

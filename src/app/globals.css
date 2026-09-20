@@ -12,6 +12,23 @@
   --radius: 0.75rem;
   --brand-soft: #ffe8e8;
   --brand-gradient: linear-gradient(135deg, #ff0000, #ff4e45);
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Smooth theme surface polish */
+html {
+  transition:
+    background-color 0.25s ease,
+    color 0.2s ease;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 /* ── Themes: only colors / surfaces (logo shape never changes) ── */
@@ -405,6 +422,14 @@ html.dark[data-theme="nojor"] {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Soft primary fill that follows active theme */
+.theme-surface {
+  background-color: color-mix(in srgb, var(--primary) 8%, var(--background));
+}
+.theme-ring {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 /* Soft brand mark pulse — unused by default header mark */
