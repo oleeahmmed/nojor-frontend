@@ -9,58 +9,59 @@ const NAV = [
   { href: "/corrections", label: "সংশোধন নীতি" },
 ] as const;
 
+/**
+ * Compact info layout — fills main column, minimal chrome, readable body.
+ * Avoids huge empty margins around a narrow centered column.
+ */
 export function InfoPage({
   title,
-  eyebrow,
   lead,
   activeHref,
   children,
 }: {
   title: string;
-  eyebrow: string;
   lead: string;
   activeHref: (typeof NAV)[number]["href"];
   children: ReactNode;
+  /** @deprecated unused — kept for call-site compat */
+  eyebrow?: string;
 }) {
   return (
     <YtShell>
-      <article className="min-h-full pb-16">
-        <header className="relative overflow-hidden border-b border-border/50">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_15%_0%,var(--brand-soft),transparent_55%)]"
-          />
-          <div className="relative mx-auto max-w-3xl px-4 pb-8 pt-8 sm:px-6 sm:pt-10">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-              {eyebrow}
-            </p>
-            <h1 className="text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
-              {title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-              {lead}
-            </p>
-            <nav className="mt-6 flex flex-wrap gap-2">
+      <article className="w-full min-w-0 pb-20 md:pb-10">
+        <div className="w-full px-4 pt-5 sm:px-5 sm:pt-6 lg:px-8">
+          <div className="w-full max-w-3xl">
+            <nav
+              aria-label="তথ্য পেজ"
+              className="mb-4 flex flex-wrap gap-1.5 border-b border-border/60 pb-3"
+            >
               {NAV.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "rounded-full px-3.5 py-1.5 text-xs font-medium transition",
+                    "rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition sm:text-[13px]",
                     item.href === activeHref
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground",
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
                   {item.label}
                 </Link>
               ))}
             </nav>
-          </div>
-        </header>
 
-        <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6 sm:py-10">
-          {children}
+            <header className="mb-5 sm:mb-6">
+              <h1 className="text-[1.65rem] font-bold leading-tight tracking-[-0.03em] sm:text-[1.85rem]">
+                {title}
+              </h1>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground sm:text-[15px]">
+                {lead}
+              </p>
+            </header>
+
+            <div className="divide-y divide-border/60">{children}</div>
+          </div>
         </div>
       </article>
     </YtShell>
@@ -75,9 +76,11 @@ export function InfoSection({
   children: ReactNode;
 }) {
   return (
-    <section>
-      <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-      <div className="mt-2 space-y-3 text-[15px] leading-relaxed text-foreground/90">
+    <section className="py-4 first:pt-0 sm:py-5">
+      <h2 className="text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
+        {title}
+      </h2>
+      <div className="mt-2 space-y-2.5 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
         {children}
       </div>
     </section>
@@ -90,23 +93,33 @@ export function InfoSteps({
   steps: { title: string; body: string }[];
 }) {
   return (
-    <ol className="space-y-4">
-      {steps.map((s, i) => (
-        <li
-          key={s.title}
-          className="flex gap-4 rounded-2xl border border-border/70 bg-card p-4"
-        >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-bold text-primary">
-            {i + 1}
-          </span>
-          <div>
-            <p className="font-semibold tracking-tight">{s.title}</p>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {s.body}
-            </p>
-          </div>
-        </li>
-      ))}
-    </ol>
+    <section className="py-4 first:pt-0 sm:py-5">
+      <h2 className="mb-3 text-[15px] font-semibold tracking-tight sm:text-base">
+        ধাপসমূহ
+      </h2>
+      <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {steps.map((s, i) => (
+          <li
+            key={s.title}
+            className={cn(
+              "flex gap-3 rounded-xl border border-border/50 bg-muted/30 px-3 py-3",
+              i === steps.length - 1 && steps.length % 2 === 1 && "sm:col-span-2",
+            )}
+          >
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-foreground text-[12px] font-bold text-background">
+              {i + 1}
+            </span>
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold tracking-tight sm:text-[14px]">
+                {s.title}
+              </p>
+              <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground sm:text-[13px]">
+                {s.body}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
