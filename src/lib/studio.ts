@@ -259,7 +259,6 @@ export async function staffEditCase(slug: string, body: CaseStaffEditBody) {
     legal_status?: string;
     visibility?: string;
     incident_date?: string | null;
-    incident_date?: string | null;
     verdict_date?: string | null;
     sources?: { title: string; url?: string; publisher?: string }[];
   }>;
