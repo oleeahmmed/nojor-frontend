@@ -1,130 +1,65 @@
 "use client";
 
-import { FormEvent, Suspense, useState } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { submitCase } from "@/lib/api";
-import { CRIME_CATEGORIES } from "@/lib/categories";
-import { ACCUSED_PARTIES, type AccusedPartyKey } from "@/lib/parties";
+import { ArrowLeft, Mail, Send } from "lucide-react";
+import { COMMUNITY } from "@/lib/community";
 import { YtShell } from "@/components/yt-shell";
-import { LocationFields, EMPTY_LOCATION, type LocationValue } from "@/components/location-fields";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const selectClass =
-  "flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40";
-
-function SubmitForm() {
-  const [ok, setOk] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [location, setLocation] = useState<LocationValue>(EMPTY_LOCATION);
-  const [category, setCategory] = useState("");
-  const [party, setParty] = useState<AccusedPartyKey>("");
-
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!location.district.trim()) {
-      setError("জেলা বাধ্যতামূলক।");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    const fd = new FormData(e.currentTarget);
-    try {
-      const res = await submitCase({
-        title: String(fd.get("title") || ""),
-        source_url: String(fd.get("source_url") || ""),
-        description: String(fd.get("description") || ""),
-        division: location.division,
-        district: location.district,
-        upazila: location.upazila,
-        thana: location.thana,
-        village: location.village,
-        crime_category: category,
-        accused_party: party || undefined,
-      });
-      if (res?.ok) setOk(true);
-      else setError(res?.error || "Failed");
-    } catch {
-      setError("নেটওয়ার্ক ত্রুটি — আবার চেষ্টা করুন।");
-    } finally {
-      setLoading(false);
-    }
-  }
+/**
+ * Public submit is email-only — no form hits the API (abuse / attack surface).
+ */
+function SubmitBody() {
+  const mailto = `mailto:${COMMUNITY.tips.email}?subject=${encodeURIComponent(COMMUNITY.tips.subject)}&body=${encodeURIComponent(
+    "ভিডিও লিংক:\n\nজেলা / এলাকা (ঐচ্ছিক):\n\nসংক্ষিপ্ত বিবরণ (ঐচ্ছিক):\n",
+  )}`;
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-6">
+    <div className="mx-auto max-w-lg px-4 py-10 sm:py-14">
       <Link
         href="/"
         className={cn(
           buttonVariants({ variant: "ghost", size: "sm" }),
-          "mb-4 gap-1 text-primary",
+          "mb-6 -ml-2 gap-1",
         )}
       >
-        <ArrowLeft className="h-4 w-4" /> Back
+        <ArrowLeft className="h-4 w-4" />
+        হোম
       </Link>
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <h1 className="text-2xl font-bold tracking-tight">Create</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          জেলা বাধ্যতামূলক। উপজেলা, থানা ও গ্রাম ঐচ্ছিক।
+
+      <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6">
+        <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Send className="h-6 w-6" />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+          ভিডিও পাঠান — শুধু ইমেইল
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          সাইটে ফর্ম দিয়ে জমা বন্ধ আছে (স্প্যাম ও হামলা এড়াতে)। YouTube /
+          Facebook লিংক ইমেইলে পাঠান — টিম যাচাই করে আর্কাইভে যোগ করবে।
         </p>
-        {ok ? (
-          <p className="mt-5 rounded-xl bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
-            জমা হয়েছে। কেস প্রকাশিত হয়েছে।
-          </p>
-        ) : (
-          <form onSubmit={onSubmit} className="mt-5 space-y-3">
-            <label className="block space-y-1.5 text-sm font-semibold">
-              Video link
-              <Input name="source_url" required placeholder="https://..." />
-            </label>
-            <label className="block space-y-1.5 text-sm font-semibold">
-              Title
-              <Input name="title" required />
-            </label>
-            <label className="block space-y-1.5 text-sm font-semibold">
-              অপরাধের ধরন
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">ক্যাটাগরি (ঐচ্ছিক)</option>
-                {CRIME_CATEGORIES.filter((c) => c.key !== "all").map((c) => (
-                  <option key={c.key} value={c.key}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block space-y-1.5 text-sm font-semibold">
-              কোন দলের বিরুদ্ধে অভিযোগ
-              <select
-                value={party}
-                onChange={(e) => setParty(e.target.value as AccusedPartyKey)}
-                className={selectClass}
-              >
-                {ACCUSED_PARTIES.map((p) => (
-                  <option key={p.key || "none"} value={p.key}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block space-y-1.5 text-sm font-semibold">
-              Description
-              <Textarea name="description" className="min-h-24" />
-            </label>
-            <LocationFields value={location} onChange={setLocation} />
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Uploading…" : "Submit for review"}
-            </Button>
-          </form>
-        )}
+
+        <ul className="mt-4 space-y-2 text-sm text-foreground/90">
+          <li>· একই লিংক বারবার পাঠানোর দরকার নেই</li>
+          <li>· জেলা / এলাকা লিখলে দ্রুত মিলবে</li>
+          <li>· প্রকাশের পর Case ID ইমেইলে জানানো হতে পারে</li>
+        </ul>
+
+        <a
+          href={mailto}
+          className={cn(
+            buttonVariants({ size: "lg" }),
+            "mt-6 inline-flex h-12 w-full gap-2 rounded-full text-[15px]",
+          )}
+        >
+          <Mail className="h-5 w-5" />
+          {COMMUNITY.tips.email}
+        </a>
+        <p className="mt-3 text-center text-[12px] text-muted-foreground">
+          Subject: {COMMUNITY.tips.subject}
+        </p>
       </div>
     </div>
   );
@@ -132,9 +67,9 @@ function SubmitForm() {
 
 export default function SubmitPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div className="p-8 text-muted-foreground">…</div>}>
       <YtShell>
-        <SubmitForm />
+        <SubmitBody />
       </YtShell>
     </Suspense>
   );

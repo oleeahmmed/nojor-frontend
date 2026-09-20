@@ -130,16 +130,17 @@ export function PrivacyFab() {
             {tab === "tips" ? (
               <>
                 <ChatBubble tone="tips">
-                  পাবলিক ভিডিও: YouTube/Facebook লিংক ইমেইলে পাঠান। সাবজেক্টে{" "}
-                  <strong>Case ID</strong> থাকলে আরও দ্রুত মিলবে।
+                  সাইটে ফর্ম দিয়ে জমা <strong>বন্ধ</strong> (স্প্যাম/হামলা
+                  এড়াতে)। শুধু ইমেইলে YouTube/Facebook লিংক পাঠান —{" "}
+                  <strong>{COMMUNITY.tips.email}</strong>
                 </ChatBubble>
                 <ChatBubble tone="tips">
-                  নতুন ঘটনা হলে আগে ইমেইল করুন — আমরা Case ID দেব। পরে সেই ID
-                  দিয়ে লিংক/ভিডিও পাঠালেই যথেষ্ট; আলাদা ফর্ম লাগে না।
+                  সাবজেক্টে <strong>Case ID</strong> বা নতুন ঘটনার জেলা লিখুন।
+                  একই লিংক বারবার পাঠানোর দরকার নেই — টিম যাচাই করে যোগ করবে।
                 </ChatBubble>
                 <ChatBubble tone="tips">
-                  প্রাইভেট ভিডিও: Google Drive লিংক বা ইমেইল অ্যাটাচমেন্ট। চাইলে
-                  আপনার ইমেইল দিন — প্রকাশ হলে সেই ঠিকানায় কেসের লিংক যাবে।
+                  প্রাইভেট ভিডিও: Drive লিংক বা অ্যাটাচমেন্ট ইমেইলে। বিস্তারিত:{" "}
+                  <strong>/submit</strong> পেজ।
                 </ChatBubble>
               </>
             ) : null}

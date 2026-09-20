@@ -19,13 +19,13 @@ import {
   Link2,
   Lock,
   LogOut,
+  Mail,
   MapPin,
   Tag,
   Upload,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { submitCase } from "@/lib/api";
 import { COMMUNITY } from "@/lib/community";
 import { CRIME_CATEGORIES } from "@/lib/categories";
 import { ACCUSED_PARTIES, type AccusedPartyKey } from "@/lib/parties";
@@ -299,49 +299,6 @@ export function CreateModal({
     setStep(target);
   }
 
-  async function onSubmitLink(e: FormEvent) {
-    e.preventDefault();
-    if (!sourceUrl.trim()) {
-      setError("ভিডিও লিংক বাধ্যতামূলক।");
-      return;
-    }
-    if (!/youtube\.com|youtu\.be|facebook\.com|fb\.watch/i.test(sourceUrl)) {
-      setError("শুধু YouTube বা Facebook লিংক গ্রহণযোগ্য।");
-      return;
-    }
-    if (!title.trim()) {
-      setError("শিরোনাম বাধ্যতামূলক।");
-      return;
-    }
-    if (!location.district.trim()) {
-      setError("জেলা বাধ্যতামূলক।");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const res = await submitCase({
-        title: title.trim(),
-        source_url: sourceUrl.trim(),
-        description: description.trim(),
-        division: location.division,
-        district: location.district,
-        upazila: location.upazila,
-        thana: location.thana,
-        village: location.village,
-        crime_category: category,
-        accused_party: party || undefined,
-        tags: normalizeTags(tagsInput),
-      });
-      if (res?.ok) setOk(true);
-      else setError(res?.error || "জমা ব্যর্থ হয়েছে।");
-    } catch {
-      setError("নেটওয়ার্ক ত্রুটি — আবার চেষ্টা করুন।");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function publishUpload() {
     if (!file) {
       setError("একটি ভিডিও ফাইল বাছুন।");
@@ -438,14 +395,14 @@ export function CreateModal({
             </span>
             <div className="min-w-0 flex-1">
               <h2 className="truncate text-base font-semibold tracking-tight sm:text-[17px]">
-                {isUploadTab ? "ভিডিও আপলোড" : "ভিডিও জমা দিন"}
+                {isUploadTab ? "ভিডিও আপলোড" : "ইমেইলে পাঠান"}
               </h2>
               <p className="truncate text-[12px] text-muted-foreground">
                 {isUploadTab
                   ? loggedIn
                     ? `টিম · ${staffName} · শুধু পোস্ট (সরানো ইমেইলে)`
                     : "শুধু নজর টিমের জন্য"
-                  : "পাবলিক লিংক · যাচাইয়ের পর প্রকাশ"}
+                  : "ইমেইলে লিংক পাঠান · সাইট ফর্ম বন্ধ"}
               </p>
             </div>
             {isUploadTab && loggedIn && !loading ? (
@@ -467,36 +424,24 @@ export function CreateModal({
             </button>
           </div>
 
-          {/* Tabs */}
-          <div className="mt-3 flex gap-1 pb-0">
-            <button
-              type="button"
-              onClick={() => switchTab("link")}
-              className={cn(
-                "flex h-9 items-center gap-1.5 rounded-t-lg border-b-2 px-3.5 text-[13px] font-medium transition",
-                !isUploadTab
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Link2 className="h-3.5 w-3.5" /> লিংক জমা
-            </button>
-            <button
-              type="button"
-              onClick={() => switchTab("upload")}
-              className={cn(
-                "flex h-9 items-center gap-1.5 rounded-t-lg border-b-2 px-3.5 text-[13px] font-medium transition",
-                isUploadTab
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <CloudUpload className="h-3.5 w-3.5" /> ফাইল আপলোড
-              <span className="rounded-full bg-muted px-1.5 py-px text-[10px] font-semibold text-muted-foreground">
-                টিম
-              </span>
-            </button>
-          </div>
+          {/* Tabs — staff upload only; public submit is email (/submit) */}
+          {loggedIn ? (
+            <div className="mt-3 flex gap-1 pb-0">
+              <button
+                type="button"
+                onClick={() => switchTab("upload")}
+                className={cn(
+                  "flex h-9 items-center gap-1.5 rounded-t-lg border-b-2 px-3.5 text-[13px] font-medium transition",
+                  "border-primary text-foreground",
+                )}
+              >
+                <CloudUpload className="h-3.5 w-3.5" /> ফাইল আপলোড
+                <span className="rounded-full bg-muted px-1.5 py-px text-[10px] font-semibold text-muted-foreground">
+                  টিম
+                </span>
+              </button>
+            </div>
+          ) : null}
         </header>
 
         {ok ? (
@@ -602,13 +547,13 @@ export function CreateModal({
               </Button>
               <p className="mt-2.5 text-center text-[11px] text-muted-foreground">
                 সাধারণ দর্শক?{" "}
-                <button
-                  type="button"
-                  onClick={() => switchTab("link")}
+                <Link
+                  href="/submit"
+                  onClick={() => handleOpenChange(false)}
                   className="font-medium text-foreground/80 underline-offset-2 hover:underline"
                 >
-                  লিংক দিয়ে জমা দিন
-                </button>
+                  ইমেইলে লিংক পাঠান
+                </Link>
               </p>
             </footer>
           </form>
@@ -1102,251 +1047,36 @@ export function CreateModal({
             )}
           </form>
         ) : (
-          /* ── Public link submit ── */
-          <form onSubmit={onSubmitLink} className="flex min-h-0 flex-1 flex-col">
-            <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
-              {/* Compact community row */}
-              <div className="mb-4 flex flex-wrap items-center gap-2">
-                <a
-                  href={COMMUNITY.facebookGroup.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[12px] font-medium transition hover:border-[#1877F2]/40 hover:bg-[#1877F2]/5"
-                >
-                  <span className="flex size-5 items-center justify-center rounded-full bg-[#1877F2] text-[10px] font-bold text-white">
-                    f
-                  </span>
-                  Facebook
-                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                </a>
-                <a
-                  href={COMMUNITY.youtube.channelUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[12px] font-medium transition hover:border-red-500/40 hover:bg-red-500/5"
-                >
-                  <span className="flex size-5 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white">
-                    YT
-                  </span>
-                  YouTube
-                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setHelpOpen((v) => !v)}
-                  className="inline-flex h-9 items-center gap-1 rounded-full px-2.5 text-[12px] text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  সাহায্য
-                  <ChevronDown
-                    className={cn(
-                      "h-3.5 w-3.5 transition",
-                      helpOpen && "rotate-180",
-                    )}
-                  />
-                </button>
-              </div>
-
-              {helpOpen ? (
-                <div className="mb-4 rounded-xl bg-muted/60 px-3.5 py-3 text-[12px] leading-relaxed text-muted-foreground">
-                  <p>
-                    আগে Facebook গ্রুপ বা YouTube-এ পাবলিক ভিডিও পোস্ট করুন,
-                    তারপর লিংক এখানে পেস্ট করুন।
-                  </p>
-                  <p className="mt-2">
-                    টেস্ট:{" "}
-                    <button
-                      type="button"
-                      className="font-medium text-foreground underline-offset-2 hover:underline"
-                      onClick={() => setSourceUrl(COMMUNITY.sampleLinks.youtube)}
-                    >
-                      YouTube
-                    </button>
-                    {" · "}
-                    <button
-                      type="button"
-                      className="font-medium text-foreground underline-offset-2 hover:underline"
-                      onClick={() =>
-                        setSourceUrl(COMMUNITY.sampleLinks.facebook)
-                      }
-                    >
-                      Facebook
-                    </button>
-                  </p>
-                </div>
-              ) : null}
-
-              <div className="space-y-4 md:grid md:grid-cols-2 md:items-start md:gap-5 md:space-y-0">
-                <div className="min-w-0 space-y-3.5">
-                  <div>
-                    <label className={label}>
-                      ভিডিও লিংক <span className="text-destructive">*</span>
-                    </label>
-                    <div className="relative">
-                      <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <input
-                        value={sourceUrl}
-                        onChange={(e) => setSourceUrl(e.target.value)}
-                        required
-                        inputMode="url"
-                        autoComplete="url"
-                        placeholder="youtube.com / facebook.com লিংক"
-                        className={cn(field, "pl-9")}
-                        autoFocus
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={label}>
-                      শিরোনাম <span className="text-destructive">*</span>
-                    </label>
-                    <input
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      required
-                      placeholder="ঘটনার সংক্ষিপ্ত শিরোনাম"
-                      className={field}
-                    />
-                  </div>
-
-                  <div>
-                    <label className={label}>অপরাধের ধরন</label>
-                    <FormSelect
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                    >
-                      <option value="">ঐচ্ছিক — বাছুন</option>
-                      {CRIME_CATEGORIES.filter((c) => c.key !== "all").map(
-                        (c) => (
-                          <option key={c.key} value={c.key}>
-                            {c.label}
-                          </option>
-                        ),
-                      )}
-                    </FormSelect>
-                  </div>
-
-                  <div>
-                    <label className={label}>কোন দলের বিরুদ্ধে অভিযোগ</label>
-                    <FormSelect
-                      value={party}
-                      onChange={(e) =>
-                        setParty(e.target.value as AccusedPartyKey)
-                      }
-                    >
-                      {ACCUSED_PARTIES.map((p) => (
-                        <option key={p.key || "none"} value={p.key}>
-                          {p.label}
-                        </option>
-                      ))}
-                    </FormSelect>
-                  </div>
-
-                  <div>
-                    <label className={label}>হ্যাশট্যাগ</label>
-                    <input
-                      value={tagsInput}
-                      onChange={(e) => setTagsInput(e.target.value)}
-                      placeholder="#বিএনপি #হুমকি #পটুয়াখালী"
-                      className={field}
-                    />
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      স্পেস বা কমা দিয়ে আলাদা করুন — সার্চে কাজে লাগে
-                    </p>
-                  </div>
-
-                  <div className="md:hidden">
-                    <button
-                      type="button"
-                      onClick={() => setMoreOpen((v) => !v)}
-                      className="flex w-full items-center justify-between rounded-xl border border-dashed border-border px-3 py-2.5 text-left text-[13px] text-muted-foreground hover:bg-muted/40"
-                    >
-                      বিবরণ (ঐচ্ছিক)
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 transition",
-                          moreOpen && "rotate-180",
-                        )}
-                      />
-                    </button>
-                    {moreOpen ? (
-                      <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="কী ঘটেছে, কবে…"
-                        rows={3}
-                        className={cn(field, "mt-2 h-auto resize-none py-2.5")}
-                      />
-                    ) : null}
-                  </div>
-
-                  <div className="hidden md:block">
-                    <label className={label}>বিবরণ (ঐচ্ছিক)</label>
-                    <textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="কী ঘটেছে, কবে…"
-                      rows={3}
-                      className={cn(field, "h-auto resize-none py-2.5")}
-                    />
-                  </div>
-                </div>
-
-                <div className="min-w-0">
-                  <p className="mb-2 text-[13px] font-medium">
-                    এলাকা <span className="text-destructive">*</span>
-                    <span className="ml-1 font-normal text-muted-foreground">
-                      জেলা বাধ্যতামূলক
-                    </span>
-                  </p>
-                  <div className="w-full min-w-0 rounded-xl border border-border/80 bg-muted/30 p-3 sm:p-3.5">
-                    <LocationFields
-                      compact
-                      value={location}
-                      onChange={setLocation}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {error ? (
-                <p
-                  role="alert"
-                  className="mt-4 rounded-xl bg-destructive/10 px-3 py-2 text-[13px] text-destructive"
-                >
-                  {error}
-                </p>
-              ) : null}
-            </div>
-
-            <footer className="shrink-0 border-t border-border/70 bg-card px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="brand-gradient h-11 w-full rounded-full border-0 text-[15px] font-semibold text-white shadow-sm transition hover:opacity-90"
-              >
-                {loading ? "জমা হচ্ছে…" : "যাচাইয়ের জন্য জমা দিন"}
-              </Button>
-              <p className="mt-2.5 text-center text-[11px] leading-snug text-muted-foreground">
-                পরিচয় গোপন ·{" "}
-                <Link
-                  href="/verification"
-                  className="text-foreground/80 underline-offset-2 hover:underline"
-                  onClick={() => handleOpenChange(false)}
-                >
-                  যাচাই
-                </Link>
-                {" · "}
-                <Link
-                  href="/corrections"
-                  className="text-foreground/80 underline-offset-2 hover:underline"
-                  onClick={() => handleOpenChange(false)}
-                >
-                  নীতি
-                </Link>
+          /* ── Public: email only (no API submit) ── */
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
+              <span className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Mail className="h-6 w-6" />
+              </span>
+              <p className="text-[16px] font-semibold tracking-tight">
+                সাইটে জমা বন্ধ — শুধু ইমেইল
               </p>
-            </footer>
-          </form>
+              <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-muted-foreground">
+                স্প্যাম ও হামলা এড়াতে পাবলিক ফর্ম বন্ধ। YouTube/Facebook লিংক
+                ইমেইলে পাঠান — টিম যাচাই করে আর্কাইভে যোগ করবে।
+              </p>
+              <a
+                href={`mailto:${COMMUNITY.tips.email}?subject=${encodeURIComponent(COMMUNITY.tips.subject)}`}
+                className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[14px] font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                <Mail className="h-4 w-4" />
+                {COMMUNITY.tips.email}
+              </a>
+              <Link
+                href="/submit"
+                onClick={() => handleOpenChange(false)}
+                className="mt-3 text-[12px] text-muted-foreground underline-offset-2 hover:underline"
+              >
+                বিস্তারিত নির্দেশনা
+              </Link>
+            </div>
+          </div>
+
         )}
       </DialogContent>
     </Dialog>

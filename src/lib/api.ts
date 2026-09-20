@@ -187,7 +187,7 @@ export async function fetchCase(slug: string): Promise<ArchiveCase | null> {
   return null;
 }
 
-export async function submitCase(body: {
+export async function submitCase(_body: {
   title: string;
   source_url: string;
   description?: string;
@@ -201,41 +201,13 @@ export async function submitCase(body: {
   accused_party?: string;
   tags?: string[] | string;
 }) {
-  const thikana =
-    body.location_text?.trim() ||
-    [body.village, body.thana, body.upazila, body.district, body.division]
-      .map((p) => (p || "").trim())
-      .filter(Boolean)
-      .join(", ");
-
-  // cPanel Passenger: Bolt /api/submit নেই — Django /public/submit/ ব্যবহার
-  const res = await fetch(`${API}/public/submit/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      title: body.title,
-      url: body.source_url,
-      thikana: thikana || body.district || "বাংলাদেশ",
-      category: body.crime_category || "other",
-      summary: body.description || "",
-      division: body.division || "",
-      district: body.district || "",
-      upazila: body.upazila || "",
-      thana: body.thana || "",
-      village: body.village || "",
-      accused_party: body.accused_party || "",
-      tags: body.tags || "",
-      visibility: "published",
-    }),
-  });
-  if (!res.ok) {
-    try {
-      return await res.json();
-    } catch {
-      return { ok: false, error: `সাবমিট ব্যর্থ (${res.status})` };
-    }
-  }
-  return res.json();
+  // Public API submit disabled — email only (anti-abuse / attack surface)
+  return {
+    ok: false as const,
+    disabled: true,
+    error:
+      "সাইটে পাবলিক সাবমিট বন্ধ। ভিডিও/লিংক ইমেইলে পাঠান: team.nojor@gmail.com",
+  };
 }
 
 export async function submitTip(body: {
