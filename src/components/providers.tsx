@@ -122,12 +122,40 @@ export function Providers({ children }: { children: ReactNode }) {
 
   const setTheme = useCallback((t: ThemeId) => {
     setThemeState(t);
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-theme", t);
+    }
+    try {
+      localStorage.setItem("nojor-theme", t);
+    } catch {
+      /* ignore */
+    }
   }, []);
-  const setColorMode = useCallback((m: ColorMode) => setColorModeState(m), []);
-  const toggleColorMode = useCallback(
-    () => setColorModeState((m) => (m === "dark" ? "light" : "dark")),
-    [],
-  );
+  const setColorMode = useCallback((m: ColorMode) => {
+    setColorModeState(m);
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.toggle("dark", m === "dark");
+    }
+    try {
+      localStorage.setItem("nojor-color-mode", m);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  const toggleColorMode = useCallback(() => {
+    setColorModeState((m) => {
+      const next = m === "dark" ? "light" : "dark";
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.toggle("dark", next === "dark");
+      }
+      try {
+        localStorage.setItem("nojor-color-mode", next);
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
 
   const value = useMemo(
     () => ({

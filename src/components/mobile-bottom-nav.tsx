@@ -123,10 +123,7 @@ export function MobileBottomNav({
               সংশোধন নীতি
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <div className="flex items-center justify-between px-2 py-1.5">
-              <span className="text-sm">থিম</span>
-              <ThemeSwitcher />
-            </div>
+            <ThemeSwitcher compact />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
