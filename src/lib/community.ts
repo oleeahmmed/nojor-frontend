@@ -1,4 +1,4 @@
-/** Community + contact — public tips vs official access. */
+/** Community + contact — সব যোগাযোগ: team.nojor@gmail.com */
 export const COMMUNITY = {
   facebookGroup: {
     name: "Nojor Crime Archive",
@@ -8,31 +8,30 @@ export const COMMUNITY = {
   youtube: {
     channelName: "Nojor Archive",
     channelUrl: "https://www.youtube.com/@NojorArchiveDemo",
-    /** @deprecated use COMMUNITY.tips.email */
-    email: "tips.nojor@gmail.com",
+    email: "team.nojor@gmail.com",
     hint: "চ্যানেলে যোগ দিন বা ইমেইলে ভিডিও পাঠান",
   },
   /** জনগণ → ভিডিও পাঠানো */
   tips: {
-    email: "tips.nojor@gmail.com",
+    email: "team.nojor@gmail.com",
     label: "ভিডিও পাঠান",
     subject: "ভিডিও জমা — নজর",
   },
   /** পুলিশ / তদন্ত কর্মকর্তা → অ্যাক্সেস */
   official: {
-    email: "access.nojor@gmail.com",
+    email: "team.nojor@gmail.com",
     label: "অফিসিয়াল অ্যাক্সেস",
     subject: "অফিসিয়াল অ্যাক্সেস অনুরোধ — নজর তদন্ত",
   },
-  /** নজর টিম — সরানো / সংশোধন (লগইন ইউজার ডিলিট করতে পারে না) */
+  /** নজর টিম — সরানো / সংশোধন */
   team: {
-    email: "tips.nojor@gmail.com",
+    email: "team.nojor@gmail.com",
     label: "নজর টিম",
     subject: "নজর টিম — ভিডিও সরানো বা সংশোধন অনুরোধ",
   },
   /** নন-প্রফিট সহায়তা / ডোনেশন */
   donation: {
-    email: "nojorhelp@gmail.com",
+    email: "team.nojor@gmail.com",
     label: "ডোনেশন / সহায়তা",
     subject: "নজর — ডোনেশন / সহায়তা (গোপনীয়)",
   },

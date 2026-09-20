@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Pencil, Shield } from "lucide-react";
 import { CRIME_CATEGORIES } from "@/lib/categories";
+import { COMMUNITY } from "@/lib/community";
 import { normalizeTags, tagsToInput } from "@/lib/tags";
 import type { ArchiveCase } from "@/lib/types";
 import {
@@ -204,10 +205,10 @@ export function StaffEditPanel({
           <p className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
             বিবরণ · সূত্র · আইনি অবস্থা নিচের ট্যাব থেকে এডিট করুন। ভিডিও সরাতে{" "}
             <a
-              href="mailto:tips.nojor@gmail.com?subject=%E0%A6%A8%E0%A6%9C%E0%A6%B0%20%E0%A6%9F%E0%A6%BF%E0%A6%AE%20%E2%80%94%20%E0%A6%AD%E0%A6%BF%E0%A6%A1%E0%A6%BF%E0%A6%93%20%E0%A6%B8%E0%A6%B0%E0%A6%BE%E0%A6%A8%E0%A7%8B"
+              href={`mailto:${COMMUNITY.team.email}?subject=${encodeURIComponent(COMMUNITY.team.subject)}`}
               className="font-medium text-primary underline-offset-2 hover:underline"
             >
-              tips.nojor@gmail.com
+              {COMMUNITY.team.email}
             </a>
           </p>
           <label className={labelCls}>

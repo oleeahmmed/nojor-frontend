@@ -169,7 +169,7 @@ export function PrivacyFab() {
                 </ChatBubble>
                 <ChatBubble tone="donation">
                   ইমেইলে কথা বলে সাহায্য করতে পারেন:{" "}
-                  <strong className="font-semibold">nojorhelp@gmail.com</strong>
+                  <strong className="font-semibold">{COMMUNITY.donation.email}</strong>
                 </ChatBubble>
                 <ChatBubble tone="donation">
                   সম্পূর্ণ তথ্য গোপন রাখা হবে। আমরা চাই না কারো পরিচয় প্রকাশ

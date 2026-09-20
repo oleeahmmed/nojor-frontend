@@ -9,6 +9,7 @@ import {
   studioLogout,
   studioUpdateProfile,
 } from "@/lib/studio";
+import { COMMUNITY } from "@/lib/community";
 import { useStudioSession } from "@/hooks/use-studio-session";
 import {
   Dialog,
@@ -168,10 +169,10 @@ export function StudioProfileDialog({
             <p className="mt-2 text-[11.5px] leading-relaxed text-muted-foreground">
               এই নাম ও ছবি ভিডিও কার্ড ও ওয়াচ পেজে দেখাবে। সরাতে{" "}
               <a
-                href="mailto:tips.nojor@gmail.com"
+                href={`mailto:${COMMUNITY.team.email}`}
                 className="font-medium text-primary underline-offset-2 hover:underline"
               >
-                tips.nojor@gmail.com
+                {COMMUNITY.team.email}
               </a>
             </p>
           )}
