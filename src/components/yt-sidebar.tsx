@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   Gavel,
   Home,
-  Lock,
   MapPin,
   Plus,
   TrendingUp,
@@ -142,17 +141,14 @@ function NavItems({
 
 function SidebarBody({
   active,
-  onOfficial,
   onCreate,
   onNavigate,
 }: {
   active: string;
-  onOfficial: () => void;
   onCreate?: () => void;
   onNavigate?: () => void;
 }) {
-  const { role, district, homeDistrict, areaPickerOpen, openAreaPicker } =
-    useApp();
+  const { homeDistrict, areaPickerOpen, openAreaPicker } = useApp();
   const { loggedIn: studioOk } = useStudioSession();
 
   return (
@@ -184,24 +180,6 @@ function SidebarBody({
           </span>
         </button>
       ) : null}
-      <button
-        type="button"
-        onClick={onOfficial}
-        className={cn(
-          "flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/70",
-          role === "official" && "bg-brand-soft",
-        )}
-      >
-        <Lock className="h-5 w-5 text-primary" />
-        <span className="min-w-0">
-          <span className="block font-medium">
-            {role === "official" ? "কর্মকর্তা মোড" : "কর্মকর্তা প্রবেশ"}
-          </span>
-          <span className="block truncate text-xs text-muted-foreground">
-            {role === "official" ? district : "Access কোড"}
-          </span>
-        </span>
-      </button>
       <div className="mt-6 space-y-2.5 px-3 text-xs leading-relaxed text-muted-foreground">
         <Link href="/about" className="block hover:text-foreground">
           আমাদের সম্পর্কে
@@ -222,15 +200,12 @@ export function YtSidebar({
   open,
   mode = "dock",
   active,
-  onOfficial,
   onCreate,
   onNavigate,
 }: {
   open: boolean;
-  /** dock = home mini/full rail; overlay = watch (hidden until hamburger) */
   mode?: "dock" | "overlay";
   active: string;
-  onOfficial: () => void;
   onCreate?: () => void;
   onNavigate?: () => void;
 }) {
@@ -247,7 +222,6 @@ export function YtSidebar({
       >
         <SidebarBody
           active={active}
-          onOfficial={onOfficial}
           onCreate={onCreate}
           onNavigate={onNavigate}
         />
@@ -257,7 +231,6 @@ export function YtSidebar({
 
   return (
     <>
-      {/* Desktop: in-flow sidebar */}
       <aside
         className={cn(
           "hidden h-full shrink-0 flex-col overflow-y-auto border-r border-border/60 bg-card md:flex",
@@ -267,7 +240,6 @@ export function YtSidebar({
         {open ? (
           <SidebarBody
             active={active}
-            onOfficial={onOfficial}
             onCreate={onCreate}
             onNavigate={onNavigate}
           />
@@ -283,7 +255,6 @@ export function YtSidebar({
         )}
       </aside>
 
-      {/* Mobile dock: overlay drawer */}
       <aside
         className={cn(
           "absolute inset-y-0 left-0 z-30 flex w-[min(var(--sidebar-w),85vw)] flex-col overflow-y-auto border-r border-border/60 bg-card px-3 py-3 shadow-2xl md:hidden",
@@ -293,7 +264,6 @@ export function YtSidebar({
       >
         <SidebarBody
           active={active}
-          onOfficial={onOfficial}
           onCreate={onCreate}
           onNavigate={onNavigate}
         />

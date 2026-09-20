@@ -10,7 +10,6 @@ import {
   UserRound,
 } from "lucide-react";
 import { useState } from "react";
-import { useApp } from "./providers";
 import { ThemeSwitcher } from "./theme-switcher";
 import { cn } from "@/lib/utils";
 import {
@@ -26,13 +25,11 @@ import {
  */
 export function MobileBottomNav({
   onCreate,
-  onOfficial,
   onProfile,
   onArea,
   studioLoggedIn = false,
 }: {
   onCreate?: () => void;
-  onOfficial: () => void;
   onProfile: () => void;
   onArea: () => void;
   studioLoggedIn?: boolean;
@@ -40,11 +37,10 @@ export function MobileBottomNav({
   const pathname = usePathname();
   const search = useSearchParams();
   const router = useRouter();
-  const { role } = useApp();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const homeOn = pathname === "/" && !search.get("view");
-  const profileOn = studioLoggedIn || role === "official";
+  const profileOn = studioLoggedIn;
 
   const item =
     "flex h-full w-full items-center justify-center text-muted-foreground outline-none transition hover:text-foreground";
@@ -108,9 +104,6 @@ export function MobileBottomNav({
             <DropdownMenuItem onClick={onArea} className="gap-2">
               <Compass className="h-4 w-4 opacity-70" />
               এলাকা
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onOfficial}>
-              কর্মকর্তা প্রবেশ
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push("/about")}>

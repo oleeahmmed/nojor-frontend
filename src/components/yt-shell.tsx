@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { YtHeader } from "./yt-header";
 import { YtSidebar } from "./yt-sidebar";
-import { OfficialModal } from "./official-modal";
-import { CreateModal } from "./create-modal";
-import { NotificationsModal } from "./notifications-modal";
 import { AreaPickerModal } from "./area-picker-modal";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import {
@@ -16,21 +14,23 @@ import {
 import { useIdentity } from "./identity-provider";
 import { useApp } from "./providers";
 
+const CreateModal = dynamic(
+  () => import("./create-modal").then((m) => m.CreateModal),
+  { ssr: false },
+);
+
 export function YtShell({
   children,
   collapseSidebar = false,
 }: {
   children: ReactNode;
-  /** Watch page: no mini-rail — hamburger opens overlay like YouTube */
   collapseSidebar?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [officialOpen, setOfficialOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const [notifsOpen, setNotifsOpen] = useState(false);
   const search = useSearchParams();
   const router = useRouter();
-  const { role, areaPickerOpen, openAreaPicker, closeAreaPicker } = useApp();
+  const { areaPickerOpen, openAreaPicker, closeAreaPicker } = useApp();
   const { openProfile: openVisitorProfile } = useIdentity();
   const studio = useStudioProfile();
   const view = search.get("view");
@@ -40,7 +40,6 @@ export function YtShell({
 
   function onProfile() {
     if (studio.loggedIn) studio.openProfile();
-    else if (role === "official") setOfficialOpen(true);
     else openVisitorProfile();
   }
 
@@ -86,7 +85,6 @@ export function YtShell({
         onMenu={() => setMenuOpen((v) => !v)}
         onProfile={onProfile}
         onCreate={openCreate}
-        onNotifications={() => setNotifsOpen(true)}
       />
 
       <div className="relative flex min-h-0 min-w-0 flex-1">
@@ -107,10 +105,6 @@ export function YtShell({
           open={menuOpen}
           mode={collapseSidebar ? "overlay" : "dock"}
           active={active}
-          onOfficial={() => {
-            setOfficialOpen(true);
-            closeAfterNav();
-          }}
           onCreate={() => {
             openCreate();
             closeAfterNav();
@@ -125,15 +119,14 @@ export function YtShell({
 
       <MobileBottomNav
         onCreate={openCreate}
-        onOfficial={() => setOfficialOpen(true)}
         onProfile={onProfile}
         onArea={openAreaPicker}
         studioLoggedIn={studio.loggedIn}
       />
 
-      <OfficialModal open={officialOpen} onClose={() => setOfficialOpen(false)} />
-      <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} />
-      <NotificationsModal open={notifsOpen} onClose={() => setNotifsOpen(false)} />
+      {createOpen ? (
+        <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} />
+      ) : null}
       <AreaPickerModal open={areaPickerOpen} onClose={closeAreaPicker} />
       <StudioProfileDialog
         open={studio.open}

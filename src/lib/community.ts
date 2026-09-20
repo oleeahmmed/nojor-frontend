@@ -15,13 +15,13 @@ export const COMMUNITY = {
   tips: {
     email: "team.nojor@gmail.com",
     label: "ভিডিও পাঠান",
-    subject: "ভিডিও জমা — নজর",
+    subject: "Case ID / ভিডিও লিংক — নজর",
   },
-  /** পুলিশ / তদন্ত কর্মকর্তা → অ্যাক্সেস */
+  /** পুলিশ / তদন্ত — ইমেইলে Case ID সহ আপডেট (সাইট লগইন নেই) */
   official: {
     email: "team.nojor@gmail.com",
-    label: "অফিসিয়াল অ্যাক্সেস",
-    subject: "অফিসিয়াল অ্যাক্সেস অনুরোধ — নজর তদন্ত",
+    label: "পুলিশ / তদন্ত ইমেইল",
+    subject: "Case ID — স্ট্যাটাস / তদন্ত আপডেট — নজর",
   },
   /** নজর টিম — সরানো / সংশোধন */
   team: {

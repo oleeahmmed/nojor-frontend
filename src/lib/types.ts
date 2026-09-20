@@ -39,6 +39,8 @@ export type CaseListItem = {
   thumbnail_url?: string;
   duration_seconds?: number | null;
   author?: CaseAuthor | null;
+  case_id?: string;
+  case_number?: string;
 };
 
 export type CaseDetail = {
@@ -87,9 +89,8 @@ export type CaseDetail = {
   verdict_disagree?: number;
   verdict_neutral?: number;
   author?: CaseAuthor | null;
+  case_id?: string;
 };
-
-/** UI-enriched case used across pages (API + local demos). */
 export type ArchiveCase = {
   id: string;
   slug: string;
@@ -117,6 +118,7 @@ export type ArchiveCase = {
   timeline: { s: string; d: string; done: boolean }[];
   sources: { t: string; p: string; url?: string }[];
   author?: CaseAuthor | null;
+  case_id?: string;
   media_provider?: string;
   media_embed_id?: string;
   media_url?: string;

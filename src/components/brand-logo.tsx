@@ -10,7 +10,7 @@ export const BRAND_MARK_SVG = "/brand/nojor-mark.svg";
 export const BRAND_MARK_TODONTO = "/brand/nojor-mark-todonto.png";
 
 /**
- * Simple circular mark (eye only) — wordmark sits beside it like YouTube.
+ * Circular mark — green background, red eye center (larger for header).
  */
 export function NojorMarkSvg({
   className,
@@ -21,35 +21,41 @@ export function NojorMarkSvg({
 }) {
   const uid = useId().replace(/:/g, "");
   const redId = `nojRed-${uid}`;
+  const greenId = `nojGreen-${uid}`;
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 80 80"
-      className={cn("shrink-0 bg-transparent", className)}
+      className={cn("shrink-0", className)}
       role="img"
       aria-hidden={!title || undefined}
       aria-label={title || undefined}
     >
       <defs>
+        <radialGradient id={greenId} cx="40%" cy="35%" r="75%">
+          <stop offset="0%" stopColor="#10b981" />
+          <stop offset="100%" stopColor="#047857" />
+        </radialGradient>
         <radialGradient id={redId} cx="40%" cy="35%" r="70%">
           <stop offset="0%" stopColor="#ff4d4d" />
           <stop offset="100%" stopColor="#cc0000" />
         </radialGradient>
       </defs>
-      <circle cx="40" cy="40" r="38" fill={`url(#${redId})`} />
+      <circle cx="40" cy="40" r="38" fill={`url(#${greenId})`} />
+      <circle cx="40" cy="40" r="26" fill={`url(#${redId})`} />
       <ellipse
         cx="40"
         cy="40"
-        rx="22"
-        ry="14"
+        rx="16"
+        ry="10"
         fill="#fff"
-        stroke="#0a3d2e"
-        strokeWidth="2.5"
+        stroke="#064e3b"
+        strokeWidth="1.8"
       />
-      <circle cx="40" cy="40" r="9" fill="#0a5c42" />
-      <circle cx="40" cy="40" r="4.5" fill="#0b0b0b" />
-      <circle cx="37.5" cy="37.5" r="1.4" fill="#fff" opacity="0.9" />
+      <circle cx="40" cy="40" r="6.5" fill="#065f46" />
+      <circle cx="40" cy="40" r="3.2" fill="#0b0b0b" />
+      <circle cx="38.2" cy="38.2" r="1.1" fill="#fff" opacity="0.9" />
     </svg>
   );
 }
@@ -86,9 +92,7 @@ export function BrandMark({
   );
 }
 
-/**
- * YouTube-style: mark + “নজর” wordmark.
- */
+/** Larger mark + wordmark stretching right. */
 export function BrandLogo({
   compact = false,
   className,
@@ -100,21 +104,21 @@ export function BrandLogo({
     <Link
       href="/"
       className={cn(
-        "group flex items-center gap-1.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-2",
+        "group flex min-w-0 items-center gap-2 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-2.5",
         className,
       )}
       aria-label="নজর — হোমে যান"
     >
       <NojorMarkSvg
         className={cn(
-          "size-7 transition-transform duration-200 ease-out group-hover:scale-[1.04] sm:size-8",
-          compact && "size-7 sm:size-8",
+          "size-9 shadow-sm transition-transform duration-200 ease-out group-hover:scale-[1.04] sm:size-10",
+          compact && "size-8 sm:size-9",
         )}
       />
       <span
         className={cn(
-          "font-[family-name:var(--font-noto-bn)] text-[1.15rem] font-bold leading-none tracking-tight text-foreground sm:text-[1.35rem]",
-          compact && "text-[1.05rem] sm:text-[1.25rem]",
+          "truncate font-[family-name:var(--font-noto-bn)] text-[1.35rem] font-bold leading-none tracking-tight text-foreground sm:text-[1.55rem]",
+          compact && "text-[1.2rem] sm:text-[1.4rem]",
         )}
       >
         নজর

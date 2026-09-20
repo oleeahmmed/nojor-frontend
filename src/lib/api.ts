@@ -58,6 +58,8 @@ function listToArchive(item: CaseListItem): ArchiveCase {
     media_url: item.media_url,
     thumbnail_url: item.thumbnail_url,
     author: item.author || null,
+    case_id: item.case_id || "",
+    case_number: item.case_number || "",
   };
 }
 
@@ -118,7 +120,7 @@ function detailToArchive(d: CaseDetail): ArchiveCase {
     media_embed_id: first?.embed_id,
     media_url: first?.original_url,
     thumbnail_url: first?.thumbnail_url,
-    case_number: d.case_number,
+    case_number: d.case_number || "",
     has_verdict: Boolean(d.has_verdict),
     verdict_summary: d.verdict_summary,
     verdict_date: d.verdict_date,
@@ -128,6 +130,7 @@ function detailToArchive(d: CaseDetail): ArchiveCase {
     verdict_disagree: d.verdict_disagree ?? 0,
     verdict_neutral: d.verdict_neutral ?? 0,
     author: d.author || null,
+    case_id: d.case_id || "",
   };
 }
 

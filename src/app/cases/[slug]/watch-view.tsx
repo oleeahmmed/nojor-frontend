@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ArchiveCase } from "@/lib/types";
-import type { LegalStatusKey } from "@/lib/types";
 import { StatusChip } from "@/components/status-chip";
-import { useApp } from "@/components/providers";
-import { OfficialStatusPanel } from "@/components/official-status-panel";
 import { StaffEditPanel } from "@/components/staff-edit-panel";
 import { WatchDescTabs } from "@/components/watch-desc-tabs";
 import { EngagementBar } from "@/components/engagement-bar";
@@ -15,20 +12,19 @@ import { VerdictPanel } from "@/components/verdict-panel";
 import { VideoEmbed } from "@/components/video-embed";
 import { formatCount } from "@/lib/engagement";
 import { RelatedThumb } from "./related-thumb";
-import { useStudioSession } from "@/hooks/use-studio-session";
 import { partyLabel } from "@/lib/parties";
 import { CaseHashtags } from "@/components/case-hashtags";
 import {
   PublisherAvatar,
   publisherLabel,
 } from "@/components/publisher-avatar";
+import { COMMUNITY } from "@/lib/community";
 
 /**
  * YouTube watch layout:
  * - No left mini-rail (handled by YtShell collapseSidebar)
  * - Primary column + fixed 402px related column
  * - Tight 24px gutters; player top-aligned with related list
- * Ref: https://www.youtube.com/watch?v=YxJjFjP0crs
  */
 export function WatchView({
   c,
@@ -37,8 +33,6 @@ export function WatchView({
   c: ArchiveCase;
   related: ArchiveCase[];
 }) {
-  const { role } = useApp();
-  const { loggedIn: studioOk } = useStudioSession();
   const [commentsOpen, setCommentsOpen] = useState(true);
   const [commentCount, setCommentCount] = useState(c.comment_count);
   const [views, setViews] = useState(c.view_count);
@@ -92,11 +86,27 @@ export function WatchView({
                     {publisherLabel(caseData.author, caseData.district)}
                   </p>
                   <p className="text-xs text-muted-foreground">
+                    {caseData.case_id ? (
+                      <>
+                        <span className="font-medium text-foreground/80">
+                          Case ID {caseData.case_id}
+                        </span>
+                        {" · "}
+                      </>
+                    ) : null}
                     {formatCount(views)} views
                     {partyLabel(caseData.accused_party)
                       ? ` · ${partyLabel(caseData.accused_party)}`
                       : ""}
                   </p>
+                  {caseData.case_id ? (
+                    <a
+                      href={`mailto:${COMMUNITY.team.email}?subject=${encodeURIComponent(`Case ID ${caseData.case_id}`)}`}
+                      className="mt-0.5 inline-block text-[11px] font-medium text-primary underline-offset-2 hover:underline"
+                    >
+                      এই Case ID দিয়ে ইমেইল করুন
+                    </a>
+                  ) : null}
                 </div>
                 <StatusChip status={status} />
               </div>
@@ -122,25 +132,6 @@ export function WatchView({
                 if (patch.status) setStatus(patch.status);
               }}
             />
-
-            {role === "official" && !studioOk && (
-              <OfficialStatusPanel
-                slug={c.slug}
-                district={caseData.district}
-                currentStatus={status}
-                onUpdated={(next: LegalStatusKey, verdictSummary?: string) => {
-                  setStatus(next);
-                  setCaseData((prev) => ({
-                    ...prev,
-                    status: next,
-                    has_verdict: ["convicted", "acquitted", "dismissed"].includes(
-                      next,
-                    ),
-                    verdict_summary: verdictSummary || prev.verdict_summary,
-                  }));
-                }}
-              />
-            )}
 
             <WatchDescTabs
               key={`tabs-${caseData.slug}`}

@@ -88,6 +88,14 @@ export function VideoCard({ c, index = 0 }: { c: ArchiveCase; index?: number }) 
           </h3>
           <p className="mt-0.5 truncate text-[12px] text-muted-foreground sm:mt-1 sm:text-[13px]">
             <span>{publisherLabel(c.author, c.district)}</span>
+            {c.case_id ? (
+              <>
+                <span> · </span>
+                <span className="font-medium text-foreground/70">
+                  {c.case_id}
+                </span>
+              </>
+            ) : null}
             {c.crime_category ? (
               <>
                 <span> · </span>

@@ -2,11 +2,11 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Bell, Menu, Mic, Plus, Search } from "lucide-react";
+import { ArrowLeft, Menu, Mic, Plus, Search } from "lucide-react";
 import { BrandLogo } from "./brand-logo";
 import { ThemeSwitcher } from "./theme-switcher";
+import { NotificationsBell } from "./notifications-bell";
 import { useIdentity } from "./identity-provider";
-import { useApp } from "./providers";
 import { useStudioSession } from "@/hooks/use-studio-session";
 import { HomeDistrictFilter } from "./home-district-filter";
 import { SmartSearchPanel } from "./smart-search-panel";
@@ -18,14 +18,11 @@ export function YtHeader({
   onMenu,
   onProfile,
   onCreate,
-  onNotifications,
 }: {
   onMenu: () => void;
   onProfile: () => void;
   onCreate?: () => void;
-  onNotifications: () => void;
 }) {
-  const { role } = useApp();
   const { name } = useIdentity();
   const { loggedIn: studioOk, name: studioName, avatarUrl } = useStudioSession();
   const router = useRouter();
@@ -34,14 +31,10 @@ export function YtHeader({
   const [mobileSearch, setMobileSearch] = useState(false);
   const avatarLabel = studioOk
     ? studioName || "টিম"
-    : role === "official"
-      ? "কর্মকর্তা মোড"
-      : name || "আপনার নাম দিন";
+    : name || "আপনার নাম দিন";
   const avatarLetter = studioOk
     ? (studioName || "ট").slice(0, 1)
-    : role === "official"
-      ? "অ"
-      : (name || "ন").slice(0, 1);
+    : (name || "ন").slice(0, 1);
 
   useEffect(() => {
     setQ(params.get("q") || "");
@@ -140,8 +133,8 @@ export function YtHeader({
           </Button>
         ) : null}
 
-        {/* এলাকা + স্মার্ট সার্চ — md+ (মোবাইলে “আরও” মেনুতে) */}
-        <div className="relative z-50 hidden min-w-0 items-center gap-1 md:flex sm:gap-1.5">
+        {/* এলাকা + স্মার্ট সার্চ — md+ */}
+        <div className="relative z-50 hidden min-w-0 items-center gap-1 overflow-visible md:flex sm:gap-1.5">
           <HomeDistrictFilter compact />
           <SmartSearchPanel inline />
         </div>
@@ -150,7 +143,6 @@ export function YtHeader({
           <ThemeSwitcher />
         </div>
 
-        {/* Mobile + desktop: Search & Notifications */}
         <Button
           variant="ghost"
           size="icon"
@@ -161,17 +153,8 @@ export function YtHeader({
           <Search className="h-5 w-5" />
         </Button>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-10 rounded-full sm:size-9"
-          onClick={onNotifications}
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-        </Button>
+        <NotificationsBell />
 
-        {/* Profile — desktop only (mobile: bottom bar) */}
         <button
           type="button"
           onClick={onProfile}
@@ -182,15 +165,7 @@ export function YtHeader({
             {studioOk && avatarUrl ? (
               <AvatarImage src={avatarUrl} alt="" />
             ) : null}
-            <AvatarFallback
-              className={
-                studioOk
-                  ? "bg-primary text-[11px] font-bold text-primary-foreground"
-                  : role === "official"
-                    ? "bg-emerald-600 text-[11px] font-bold text-white"
-                    : "bg-primary text-[11px] font-bold text-primary-foreground"
-              }
-            >
+            <AvatarFallback className="bg-primary text-[11px] font-bold text-primary-foreground">
               {avatarLetter}
             </AvatarFallback>
           </Avatar>
