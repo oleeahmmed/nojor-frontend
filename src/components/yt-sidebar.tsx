@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   AlertTriangle,
   Gavel,
   Home,
+  Info,
   MapPin,
   TrendingUp,
 } from "lucide-react";
@@ -53,6 +55,12 @@ function NavItems({
   homeDistrict: string;
   areaPickerOpen: boolean;
 }) {
+  const pathname = usePathname();
+  const infoOn =
+    pathname === "/about" ||
+    pathname === "/verification" ||
+    pathname === "/corrections";
+
   return (
     <>
       {ITEMS.map((item) => {
@@ -133,6 +141,36 @@ function NavItems({
           </Link>
         );
       })}
+
+      {/* One info entry → /about (page has tabs to verification/corrections) */}
+      {compact ? (
+        <Link
+          href="/about"
+          className={cn(
+            "flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-3 text-[10px] leading-tight text-foreground transition-colors",
+            infoOn ? "bg-muted font-medium" : "hover:bg-muted/70",
+          )}
+        >
+          <Info className="h-5 w-5" strokeWidth={infoOn ? 2.4 : 1.9} />
+          <span className="max-w-full truncate text-center leading-tight">
+            তথ্য
+          </span>
+        </Link>
+      ) : (
+        <Link
+          href="/about"
+          onClick={onNavigate}
+          className={cn(
+            "flex w-full items-center gap-5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+            infoOn
+              ? "bg-muted font-semibold text-foreground"
+              : "font-normal text-foreground/90 hover:bg-muted/70",
+          )}
+        >
+          <Info className="h-5 w-5 shrink-0" strokeWidth={infoOn ? 2.4 : 1.9} />
+          আমাদের সম্পর্কে
+        </Link>
+      )}
     </>
   );
 }
@@ -158,18 +196,7 @@ function SidebarBody({
         />
       </nav>
       <Separator className="my-3" />
-      <div className="mt-2 space-y-2.5 px-3 text-xs leading-relaxed text-muted-foreground">
-        <Link href="/about" className="block hover:text-foreground">
-          আমাদের সম্পর্কে
-        </Link>
-        <Link href="/verification" className="block hover:text-foreground">
-          কীভাবে যাচাই হয়
-        </Link>
-        <Link href="/corrections" className="block hover:text-foreground">
-          সংশোধন নীতি
-        </Link>
-        <p className="pt-2 text-[11px]">© Nojor</p>
-      </div>
+      <p className="px-3 text-[11px] text-muted-foreground">© Nojor</p>
     </>
   );
 }
@@ -183,7 +210,7 @@ export function YtSidebar({
   open: boolean;
   mode?: "dock" | "overlay";
   active: string;
-  /** @deprecated Create/login removed from public sidebar */
+  /** @deprecated */
   onCreate?: () => void;
   onNavigate?: () => void;
 }) {

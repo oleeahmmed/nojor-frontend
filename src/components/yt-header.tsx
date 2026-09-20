@@ -13,6 +13,7 @@ import { SmartSearchPanel } from "./smart-search-panel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 export function YtHeader({
   onMenu,
@@ -155,17 +156,28 @@ export function YtHeader({
 
         <NotificationsBell />
 
+        {/* YouTube-style profile — always visible; studio login wins over public name */}
         <button
           type="button"
           onClick={onProfile}
-          className="mx-0.5 hidden rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring md:inline-flex sm:mx-0"
+          className="mx-0.5 inline-flex rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring sm:mx-0"
           title={avatarLabel}
+          aria-label={studioOk ? "টিম প্রোফাইল" : name ? "প্রোফাইল" : "লগইন / নাম"}
         >
-          <Avatar size="sm">
+          <Avatar size="default" className="size-8 sm:size-9">
             {studioOk && avatarUrl ? (
               <AvatarImage src={avatarUrl} alt="" />
             ) : null}
-            <AvatarFallback className="bg-primary text-[11px] font-bold text-primary-foreground">
+            <AvatarFallback
+              className={cn(
+                "text-[12px] font-bold",
+                studioOk
+                  ? "bg-primary text-primary-foreground"
+                  : name
+                    ? "bg-emerald-700 text-white"
+                    : "bg-muted text-muted-foreground",
+              )}
+            >
               {avatarLetter}
             </AvatarFallback>
           </Avatar>
