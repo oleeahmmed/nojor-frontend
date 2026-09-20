@@ -56,23 +56,29 @@ function locFromCase(c: ArchiveCase): LocationValue {
   };
 }
 
-/** GSMArena-style label | value row */
+/** GSMArena-style label | value — fits 2-col grid */
 function SpecRow({
   label,
   children,
+  wide,
 }: {
   label: string;
   children: ReactNode;
+  /** Full width in multi-column grid */
+  wide?: boolean;
 }) {
   return (
-    <div className="flex gap-3 rounded-xl border border-border/60 bg-background px-3 py-2.5 sm:gap-5">
-      <div className="w-[30%] shrink-0 pt-0.5 text-[12px] font-medium text-muted-foreground sm:w-32 sm:text-[13px]">
+    <div
+      className={cn(
+        "flex gap-2.5 rounded-xl border border-border/60 bg-background px-2.5 py-2 sm:gap-3 sm:px-3 sm:py-2.5",
+        wide && "sm:col-span-2",
+      )}
+    >
+      <div className="w-[28%] shrink-0 pt-0.5 text-[11px] font-medium text-muted-foreground sm:w-28 sm:text-[12px]">
         {label}
       </div>
-      <div className="min-w-0 flex-1 text-[13px] leading-snug text-foreground sm:text-[14px]">
-        {children || (
-          <span className="text-muted-foreground">—</span>
-        )}
+      <div className="min-w-0 flex-1 text-[12px] leading-snug text-foreground sm:text-[13px]">
+        {children || <span className="text-muted-foreground">—</span>}
       </div>
     </div>
   );
@@ -80,7 +86,7 @@ function SpecRow({
 
 function SpecBlock({ children }: { children: ReactNode }) {
   return (
-    <div className="space-y-2 rounded-2xl bg-muted/40 p-2 sm:p-2.5">
+    <div className="grid grid-cols-1 gap-2 rounded-2xl bg-muted/40 p-2 sm:grid-cols-2 sm:gap-2 sm:p-2.5">
       {children}
     </div>
   );
@@ -93,17 +99,19 @@ const TABS: { key: TabKey; label: string; icon: typeof FileText }[] = [
 ];
 
 /**
- * Compact Case ID + 3 simple tabs (GSMArena rows).
- * Public: read-only. Staff: edit all case fields in-place.
+ * Tabs only (no row above). Case ID + edit chrome goes to title line via onChrome.
  */
 export function WatchCasePanel({
   c,
   views,
   onUpdated,
+  onChrome,
 }: {
   c: ArchiveCase;
   views: number;
   onUpdated: (patch: Partial<ArchiveCase>) => void;
+  /** Mount Case ID + staff actions on the title row */
+  onChrome?: (node: ReactNode | null) => void;
 }) {
   const { loggedIn } = useStudioSession();
   const [staffName, setStaffName] = useState("");
@@ -292,12 +300,13 @@ export function WatchCasePanel({
     .filter(Boolean)
     .join(", ");
 
-  return (
-    <div className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card">
-      {/* Compact Case ID bar — not a second big panel */}
-      <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 sm:px-3.5">
+  /* Push Case ID + actions up to title line (no row above tabs) */
+  useEffect(() => {
+    if (!onChrome) return;
+    onChrome(
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
         {caseId ? (
-          <span className="inline-flex max-w-[min(100%,14rem)] items-center gap-1 rounded-md bg-muted/70 px-2 py-0.5 font-mono text-[11px] font-semibold sm:max-w-none sm:text-[12px]">
+          <span className="inline-flex max-w-[9.5rem] items-center gap-0.5 rounded-md bg-muted/80 px-1.5 py-0.5 font-mono text-[10px] font-semibold sm:max-w-[14rem] sm:text-[11px]">
             <Hash className="h-3 w-3 shrink-0 text-muted-foreground" />
             <span className="truncate">{caseId}</span>
           </span>
@@ -307,7 +316,8 @@ export function WatchCasePanel({
             <button
               type="button"
               onClick={() => void copyCaseId()}
-              className="inline-flex h-7 items-center gap-0.5 rounded-md px-1.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label="কপি"
             >
               {copied ? (
                 <Check className="h-3 w-3 text-emerald-600" />
@@ -317,77 +327,92 @@ export function WatchCasePanel({
             </button>
             <a
               href={mailto}
-              className="inline-flex h-7 items-center gap-0.5 rounded-md px-1.5 text-[11px] text-primary hover:bg-primary/10"
+              className="inline-flex size-7 items-center justify-center rounded-md text-primary hover:bg-primary/10"
+              aria-label="ইমেইল"
             >
               <Mail className="h-3 w-3" />
             </a>
           </>
         ) : null}
-        <div className="ml-auto flex items-center gap-1.5">
-          <StatusChip status={c.status} />
-          {loggedIn ? (
-            editing ? (
-              <>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 rounded-full px-2.5 text-[11px]"
-                  disabled={busy}
-                  onClick={() => {
-                    setEditing(false);
-                    resetDrafts();
-                    setErr("");
-                    setMsg("");
-                  }}
-                >
-                  বাতিল
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="h-7 rounded-full gap-1 px-2.5 text-[11px]"
-                  disabled={busy}
-                  onClick={() => void saveAll()}
-                >
-                  <Check className="h-3 w-3" />
-                  {busy ? "…" : "সেভ"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-7 rounded-full gap-1 px-2.5 text-[11px]"
-                  onClick={() => {
-                    setEditing(true);
-                    setErr("");
-                    setMsg("");
-                  }}
-                >
-                  <Pencil className="h-3 w-3" />
-                  এডিট
-                </Button>
-                <button
-                  type="button"
-                  className="px-1 text-[10px] text-muted-foreground hover:text-foreground"
-                  onClick={() => clearStudio()}
-                  title={staffName || "লগআউট"}
-                >
-                  লগআউট
-                </button>
-              </>
-            )
-          ) : null}
-        </div>
-      </div>
+        <StatusChip status={c.status} />
+        {loggedIn ? (
+          editing ? (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 rounded-full px-2 text-[11px]"
+                disabled={busy}
+                onClick={() => {
+                  setEditing(false);
+                  resetDrafts();
+                  setErr("");
+                  setMsg("");
+                }}
+              >
+                বাতিল
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                className="h-7 rounded-full gap-1 px-2 text-[11px]"
+                disabled={busy}
+                onClick={() => void saveAll()}
+              >
+                <Check className="h-3 w-3" />
+                {busy ? "…" : "সেভ"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 rounded-full gap-1 px-2 text-[11px]"
+                onClick={() => {
+                  setEditing(true);
+                  setErr("");
+                  setMsg("");
+                }}
+              >
+                <Pencil className="h-3 w-3" />
+                এডিট
+              </Button>
+              <button
+                type="button"
+                className="px-1 text-[10px] text-muted-foreground hover:text-foreground"
+                onClick={() => clearStudio()}
+                title={staffName || "লগআউট"}
+              >
+                লগআউট
+              </button>
+            </>
+          )
+        ) : null}
+      </div>,
+    );
+    return () => onChrome(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chrome mirrors UI state
+  }, [
+    onChrome,
+    caseId,
+    copied,
+    c.status,
+    loggedIn,
+    editing,
+    busy,
+    staffName,
+    mailto,
+  ]);
 
-      {/* Tabs */}
+  return (
+    <div className="mt-3 overflow-hidden rounded-2xl border border-border/50 bg-card">
+      {/* Tabs only — chrome is on title line */}
       <div
         role="tablist"
-        className="flex border-y border-border/60 bg-muted/25"
+        className="flex border-b border-border/60 bg-muted/25"
       >
         {TABS.map((t) => {
           const Icon = t.icon;
@@ -434,7 +459,7 @@ export function WatchCasePanel({
         {tab === "overview" ? (
           <SpecBlock>
             <SpecRow label="Case ID">{caseId || "—"}</SpecRow>
-            <SpecRow label="শিরোনাম">
+            <SpecRow label="শিরোনাম" wide>
               {editing ? (
                 <input
                   className={input}
@@ -546,7 +571,7 @@ export function WatchCasePanel({
         {/* —— বিস্তারিত —— */}
         {tab === "detail" ? (
           <SpecBlock>
-            <SpecRow label="খবর / বিবরণ">
+            <SpecRow label="খবর / বিবরণ" wide>
               {editing ? (
                 <textarea
                   className={textarea}
@@ -561,7 +586,7 @@ export function WatchCasePanel({
                 </p>
               )}
             </SpecRow>
-            <SpecRow label="সূত্র">
+            <SpecRow label="সূত্র" wide>
               {editing ? (
                 <div className="space-y-2">
                   {sources.map((s, i) => (
@@ -674,7 +699,7 @@ export function WatchCasePanel({
                 </ul>
               )}
             </SpecRow>
-            <SpecRow label="রায় / নোট">
+            <SpecRow label="রায় / নোট" wide>
               {editing ? (
                 <textarea
                   className={textarea}
@@ -686,7 +711,7 @@ export function WatchCasePanel({
                 c.verdict_summary || "—"
               )}
             </SpecRow>
-            <SpecRow label="আইনি ইতিহাস">
+            <SpecRow label="আইনি ইতিহাস" wide>
               {c.timeline.length === 0 ? (
                 "—"
               ) : (
@@ -717,7 +742,7 @@ export function WatchCasePanel({
           <SpecBlock>
             {editing ? (
               <>
-                <div className="rounded-xl border border-border/60 bg-background p-3">
+                <div className="rounded-xl border border-border/60 bg-background p-3 sm:col-span-2">
                   <p className="mb-2 text-[12px] font-medium text-muted-foreground">
                     এলাকা নির্বাচন
                   </p>
@@ -751,7 +776,9 @@ export function WatchCasePanel({
                 <SpecRow label="উপজেলা">{c.upazila || "—"}</SpecRow>
                 <SpecRow label="থানা">{c.thana || "—"}</SpecRow>
                 <SpecRow label="গ্রাম / এলাকা">{c.village || "—"}</SpecRow>
-                <SpecRow label="সংক্ষেপে">{areaLine || "—"}</SpecRow>
+                <SpecRow label="সংক্ষেপে" wide>
+                  {areaLine || "—"}
+                </SpecRow>
                 <SpecRow label="ঠিকানা নোট">
                   {c.location_text || "—"}
                 </SpecRow>

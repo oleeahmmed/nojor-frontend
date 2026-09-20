@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { ArchiveCase } from "@/lib/types";
 import { WatchCasePanel } from "@/components/watch-case-panel";
 import { EngagementBar } from "@/components/engagement-bar";
@@ -18,8 +18,7 @@ import {
 } from "@/components/publisher-avatar";
 
 /**
- * YouTube watch layout — keep meta simple:
- * title → publisher + engage → one Case panel (ID + tabs) → comments
+ * Title row holds Case ID + staff actions (no extra row above tabs).
  */
 export function WatchView({
   c,
@@ -33,6 +32,11 @@ export function WatchView({
   const [views, setViews] = useState(c.view_count);
   const [status, setStatus] = useState(c.status);
   const [caseData, setCaseData] = useState(c);
+  const [titleChrome, setTitleChrome] = useState<ReactNode>(null);
+
+  const onChrome = useCallback((node: ReactNode | null) => {
+    setTitleChrome(node);
+  }, []);
 
   useEffect(() => {
     setCommentCount(c.comment_count);
@@ -59,10 +63,13 @@ export function WatchView({
           />
 
           <div className="px-3 sm:px-0">
-            <h1 className="mt-3 text-[18px] font-bold leading-snug tracking-[-0.02em] sm:text-[20px]">
-              {caseData.title}
-            </h1>
-            <CaseHashtags tags={caseData.tags} className="mt-2" />
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-3">
+              <h1 className="min-w-0 flex-1 text-[18px] font-bold leading-snug tracking-[-0.02em] sm:text-[20px]">
+                {caseData.title}
+              </h1>
+              {titleChrome}
+            </div>
+            <CaseHashtags tags={caseData.tags} className="mt-1.5" />
 
             <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3">
@@ -102,6 +109,7 @@ export function WatchView({
               key={`panel-${caseData.slug}`}
               c={caseData}
               views={views}
+              onChrome={onChrome}
               onUpdated={(patch) => {
                 setCaseData((prev) => ({ ...prev, ...patch }));
                 if (patch.status) setStatus(patch.status);
